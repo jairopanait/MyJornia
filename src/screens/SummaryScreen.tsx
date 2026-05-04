@@ -14,6 +14,18 @@ type SummaryScreenProps = {
 }
 
 export function SummaryScreen({ changeMonth, monthTitle, payrollSummary, styles, workRules }: SummaryScreenProps) {
+  function getAdditionDetail(mode: string, quantity: number, amount: number) {
+    if (mode === 'per_shift') {
+      return `${quantity.toFixed(0)} turnos x ${formatCurrency(amount)}`
+    }
+
+    if (mode === 'per_hour') {
+      return `${quantity.toFixed(1)}h x ${formatCurrency(amount)}`
+    }
+
+    return 'Fijo mensual'
+  }
+
   return (
     <>
       <View style={styles.calendarPanel}>
@@ -94,6 +106,15 @@ export function SummaryScreen({ changeMonth, monthTitle, payrollSummary, styles,
               : `${payrollSummary.holidayHours.toFixed(1)}h x ${formatCurrency(Number(workRules.holiday_hour_rate || 0))}`
           }
         />
+        {payrollSummary.additionRows.map((addition) => (
+          <SummaryRow
+            key={addition.id}
+            styles={styles}
+            label={addition.name}
+            value={formatCurrency(addition.total)}
+            detail={getAdditionDetail(addition.mode, addition.quantity, Number(addition.amount || 0))}
+          />
+        ))}
         <View style={styles.summaryDivider} />
         <SummaryRow styles={styles} label="Total bruto estimado" value={formatCurrency(payrollSummary.grossSalary)} />
       </View>

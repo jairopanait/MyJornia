@@ -10,6 +10,8 @@ import type {
   CalendarViewMode,
   LocalHoliday,
   NightPayRange,
+  PayrollAddition,
+  PayrollAdditionMode,
   PayrollDeduction,
   SaveShiftPayload,
   ShiftActionMode,
@@ -44,16 +46,19 @@ export function useWorkdayController(session: Session | null) {
   const [workRules, setWorkRules] = useState<WorkRules>(defaultWorkRules)
   const [localHolidays, setLocalHolidays] = useState<LocalHoliday[]>([])
   const [nightPayRanges, setNightPayRanges] = useState<NightPayRange[]>([])
+  const [payrollAdditions, setPayrollAdditions] = useState<PayrollAddition[]>([])
   const [deductions, setDeductions] = useState<PayrollDeduction[]>([])
   const [calendarLoading, setCalendarLoading] = useState(false)
   const [savingShift, setSavingShift] = useState(false)
   const [savingWorkRules, setSavingWorkRules] = useState(false)
   const [savingDeduction, setSavingDeduction] = useState(false)
+  const [savingAddition, setSavingAddition] = useState(false)
   const [savingTemplate, setSavingTemplate] = useState(false)
   const [shiftActionMode, setShiftActionMode] = useState<ShiftActionMode>(null)
   const [editingShiftId, setEditingShiftId] = useState<string | null>(null)
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null)
   const [editingDeductionId, setEditingDeductionId] = useState<string | null>(null)
+  const [editingAdditionId, setEditingAdditionId] = useState<string | null>(null)
   const [shiftTitle, setShiftTitle] = useState('Turno')
   const [shiftColor, setShiftColor] = useState(colorOptions[0])
   const [shiftIcon, setShiftIcon] = useState<ShiftIconId>(defaultShiftIcon)
@@ -70,6 +75,9 @@ export function useWorkdayController(session: Session | null) {
   const [templateEnd, setTemplateEnd] = useState('16:00')
   const [deductionName, setDeductionName] = useState('IRPF')
   const [deductionPercentage, setDeductionPercentage] = useState('0')
+  const [additionName, setAdditionName] = useState('Limpieza de ropa')
+  const [additionAmount, setAdditionAmount] = useState('0')
+  const [additionMode, setAdditionMode] = useState<PayrollAdditionMode>('per_shift')
   const [localHolidayDateInput, setLocalHolidayDateInput] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
   const [adminStats, setAdminStats] = useState<AdminStats | null>(null)
@@ -82,8 +90,8 @@ export function useWorkdayController(session: Session | null) {
   const selectedDateShifts = useMemo(() => shifts.filter((shift) => shift.work_date === selectedDate), [selectedDate, shifts])
   const visibleHours = useMemo(() => shifts.reduce((total, shift) => total + getShiftHours(shift), 0), [shifts])
   const payrollSummary = useMemo(
-    () => buildSummary(shifts, workRules, holidayDates, deductions, nightPayRanges),
-    [deductions, holidayDates, nightPayRanges, shifts, workRules],
+    () => buildSummary(shifts, workRules, holidayDates, deductions, nightPayRanges, payrollAdditions),
+    [deductions, holidayDates, nightPayRanges, payrollAdditions, shifts, workRules],
   )
   const greetingName = useMemo(() => session?.user.user_metadata?.full_name || session?.user.email || 'usuario', [session])
 
@@ -94,6 +102,7 @@ export function useWorkdayController(session: Session | null) {
       setWorkRules(defaultWorkRules)
       setLocalHolidays([])
       setNightPayRanges([])
+      setPayrollAdditions([])
       setDeductions([])
       setIsAdmin(false)
       setAdminStats(null)
@@ -103,6 +112,7 @@ export function useWorkdayController(session: Session | null) {
     loadShiftTypes()
     loadWorkRules()
     loadNightPayRanges()
+    loadPayrollAdditions()
     loadPayrollDeductions()
     loadLocalHolidays()
     loadAdminState()
@@ -302,6 +312,98 @@ export function useWorkdayController(session: Session | null) {
     }
 
     setDeductions((data ?? []) as PayrollDeduction[])
+  }
+
+  async function loadPayrollAdditions() {
+    if (!supabase || !session) {
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('payroll_additions')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      setPayrollAdditions([])
+      return
+    }
+
+    setPayrollAdditions((data ?? []) as PayrollAddition[])
+  }
+
+  async function saveAddition() {
+    if (!supabase || !session) {
+      return
+    }
+
+    const cleanName = additionName.trim()
+    const cleanAmount = parseNumber(additionAmount)
+
+    if (!cleanName) {
+      Alert.alert('Falta nombre', 'Pon un nombre al concepto.')
+      return
+    }
+
+    if (cleanAmount < 0) {
+      Alert.alert('Cantidad no válida', 'Pon una cantidad igual o mayor que 0.')
+      return
+    }
+
+    setSavingAddition(true)
+    const payload = {
+      user_id: session.user.id,
+      name: cleanName,
+      amount: cleanAmount,
+      mode: additionMode,
+    }
+    const query = editingAdditionId
+      ? supabase.from('payroll_additions').update(payload).eq('id', editingAdditionId).eq('user_id', session.user.id).select('*').single()
+      : supabase.from('payroll_additions').insert(payload).select('*').single()
+
+    const { data, error } = await query
+    setSavingAddition(false)
+
+    if (error) {
+      Alert.alert('No se pudo guardar el concepto', error.message)
+      return
+    }
+
+    const savedAddition = data as PayrollAddition
+    setPayrollAdditions((currentAdditions) => {
+      if (editingAdditionId) {
+        return currentAdditions.map((addition) => (addition.id === editingAdditionId ? savedAddition : addition))
+      }
+
+      return [...currentAdditions, savedAddition]
+    })
+    setEditingAdditionId(null)
+    setAdditionName('Limpieza de ropa')
+    setAdditionAmount('0')
+    setAdditionMode('per_shift')
+  }
+
+  function startEditAddition(addition: PayrollAddition) {
+    setEditingAdditionId(addition.id)
+    setAdditionName(addition.name)
+    setAdditionAmount(formatNumber(Number(addition.amount || 0)))
+    setAdditionMode(addition.mode)
+  }
+
+  async function deleteAddition(additionId: string) {
+    if (!supabase || !session) {
+      return
+    }
+
+    const { error } = await supabase.from('payroll_additions').delete().eq('id', additionId).eq('user_id', session.user.id)
+
+    if (error) {
+      Alert.alert('No se pudo borrar el concepto', error.message)
+      return
+    }
+
+    setPayrollAdditions((currentAdditions) => currentAdditions.filter((addition) => addition.id !== additionId))
   }
 
   async function saveDeduction() {
@@ -707,6 +809,9 @@ export function useWorkdayController(session: Session | null) {
 
   return {
     activeTab,
+    additionAmount,
+    additionMode,
+    additionName,
     addLocalHoliday,
     addNightRange,
     adminLoading,
@@ -720,8 +825,10 @@ export function useWorkdayController(session: Session | null) {
     deductionPercentage,
     deductions,
     deleteDeduction,
+    deleteAddition,
     deleteLocalHoliday,
     editingDeductionId,
+    editingAdditionId,
     editingShiftId,
     editingTemplateId,
     endTime,
@@ -738,11 +845,14 @@ export function useWorkdayController(session: Session | null) {
     monthTitle,
     nightPayRanges,
     payrollSummary,
+    payrollAdditions,
     removeNightRange,
     saveDeduction,
+    saveAddition,
     saveShiftInstance,
     saveWorkRules,
     savingDeduction,
+    savingAddition,
     savingShift,
     savingTemplate,
     savingWorkRules,
@@ -750,6 +860,9 @@ export function useWorkdayController(session: Session | null) {
     selectedDate,
     selectedDateShifts,
     setActiveTab,
+    setAdditionAmount,
+    setAdditionMode,
+    setAdditionName,
     setBreakMinutes,
     setCalendarView,
     setCurrentMonth,
@@ -781,6 +894,7 @@ export function useWorkdayController(session: Session | null) {
     shiftTitle,
     shiftTypes,
     startAddShift,
+    startEditAddition,
     startCreateShift,
     startEditDeduction,
     startEditShift,

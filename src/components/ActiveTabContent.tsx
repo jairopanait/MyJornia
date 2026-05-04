@@ -105,27 +105,39 @@ export function ActiveTabContent({ colors, controller, sessionEmail, styles }: A
   if (controller.activeTab === 'settings') {
     return (
       <SettingsScreen
+        additionAmount={controller.additionAmount}
+        additionMode={controller.additionMode}
+        additionName={controller.additionName}
         colors={colors}
         addLocalHoliday={controller.addLocalHoliday}
         addNightRange={controller.addNightRange}
         deductionName={controller.deductionName}
         deductionPercentage={controller.deductionPercentage}
         deductions={controller.deductions}
+        deleteAddition={controller.deleteAddition}
         deleteDeduction={controller.deleteDeduction}
         deleteLocalHoliday={controller.deleteLocalHoliday}
         editingDeductionId={controller.editingDeductionId}
+        editingAdditionId={controller.editingAdditionId}
         localHolidayDateInput={controller.localHolidayDateInput}
         localHolidays={controller.localHolidays}
         nightPayRanges={controller.nightPayRanges}
+        payrollAdditions={controller.payrollAdditions}
         removeNightRange={controller.removeNightRange}
+        saveAddition={controller.saveAddition}
         saveDeduction={controller.saveDeduction}
         saveWorkRules={controller.saveWorkRules}
         savingDeduction={controller.savingDeduction}
+        savingAddition={controller.savingAddition}
         savingWorkRules={controller.savingWorkRules}
+        setAdditionAmount={controller.setAdditionAmount}
+        setAdditionMode={controller.setAdditionMode}
+        setAdditionName={controller.setAdditionName}
         setDeductionName={controller.setDeductionName}
         setDeductionPercentage={controller.setDeductionPercentage}
         setLocalHolidayDateInput={controller.setLocalHolidayDateInput}
         setWorkRules={controller.setWorkRules}
+        startEditAddition={controller.startEditAddition}
         startEditDeduction={controller.startEditDeduction}
         styles={styles}
         updateNightRange={controller.updateNightRange}

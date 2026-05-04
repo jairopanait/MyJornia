@@ -54,6 +54,16 @@ export type PayrollDeduction = {
   percentage: number
 }
 
+export type PayrollAdditionMode = 'fixed' | 'per_shift' | 'per_hour'
+
+export type PayrollAddition = {
+  id: string
+  user_id: string
+  name: string
+  amount: number
+  mode: PayrollAdditionMode
+}
+
 export type NightPayRange = {
   id: string
   user_id: string

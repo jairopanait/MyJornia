@@ -5,31 +5,44 @@ import { DecimalInput } from '../components/DecimalInput'
 import { SelectField } from '../components/SelectField'
 import { autonomousCommunities } from '../data/holidays'
 import type { AppColors, AppStyles } from '../theme'
-import type { LocalHoliday, NightPayRange, PayrollDeduction, WorkRules } from '../types'
+import type { LocalHoliday, NightPayRange, PayrollAddition, PayrollAdditionMode, PayrollDeduction, WorkRules } from '../types'
 import { normalizeTime } from '../utils/dates'
+import { parseNumber } from '../utils/payroll'
 
 type SettingsScreenProps = {
+  additionAmount: string
+  additionMode: PayrollAdditionMode
+  additionName: string
   addLocalHoliday: () => void
   addNightRange: () => void
   colors: AppColors
   deductionName: string
   deductionPercentage: string
   deductions: PayrollDeduction[]
+  deleteAddition: (additionId: string) => void
   deleteDeduction: (deductionId: string) => void
   deleteLocalHoliday: (holidayId: string) => void
   editingDeductionId: string | null
+  editingAdditionId: string | null
   localHolidayDateInput: string
   localHolidays: LocalHoliday[]
   nightPayRanges: NightPayRange[]
+  payrollAdditions: PayrollAddition[]
   removeNightRange: (rangeId: string) => void
+  saveAddition: () => void
   saveDeduction: () => void
   saveWorkRules: () => void
   savingDeduction: boolean
+  savingAddition: boolean
   savingWorkRules: boolean
+  setAdditionAmount: (value: string) => void
+  setAdditionMode: (value: PayrollAdditionMode) => void
+  setAdditionName: (value: string) => void
   setDeductionName: (value: string) => void
   setDeductionPercentage: (value: string) => void
   setLocalHolidayDateInput: (value: string) => void
   setWorkRules: Dispatch<SetStateAction<WorkRules>>
+  startEditAddition: (addition: PayrollAddition) => void
   startEditDeduction: (deduction: PayrollDeduction) => void
   styles: AppStyles
   updateNightRange: (rangeId: string, patch: Partial<Pick<NightPayRange, 'end_time' | 'hour_rate' | 'start_time'>>) => void
@@ -37,32 +50,54 @@ type SettingsScreenProps = {
 }
 
 export function SettingsScreen({
+  additionAmount,
+  additionMode,
+  additionName,
   addLocalHoliday,
   addNightRange,
   colors,
   deductionName,
   deductionPercentage,
   deductions,
+  deleteAddition,
   deleteDeduction,
   deleteLocalHoliday,
   editingDeductionId,
+  editingAdditionId,
   localHolidayDateInput,
   localHolidays,
   nightPayRanges,
+  payrollAdditions,
   removeNightRange,
+  saveAddition,
   saveDeduction,
   saveWorkRules,
   savingDeduction,
+  savingAddition,
   savingWorkRules,
+  setAdditionAmount,
+  setAdditionMode,
+  setAdditionName,
   setDeductionName,
   setDeductionPercentage,
   setLocalHolidayDateInput,
   setWorkRules,
+  startEditAddition,
   startEditDeduction,
   styles,
   updateNightRange,
   workRules,
 }: SettingsScreenProps) {
+  const additionModeOptions = [
+    { label: 'Fijo mensual', value: 'fixed' },
+    { label: 'Por turno trabajado', value: 'per_shift' },
+    { label: 'Por hora trabajada', value: 'per_hour' },
+  ]
+
+  function getAdditionModeLabel(mode: PayrollAdditionMode) {
+    return additionModeOptions.find((option) => option.value === mode)?.label ?? 'Concepto'
+  }
+
   return (
     <>
       <View style={styles.formPanel}>
@@ -218,6 +253,57 @@ export function SettingsScreen({
         <Pressable style={[styles.primaryButton, savingWorkRules && styles.disabledButton]} onPress={saveWorkRules} disabled={savingWorkRules}>
           {savingWorkRules ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Guardar ajustes</Text>}
         </Pressable>
+      </View>
+
+      <View style={styles.formPanel}>
+        <Text style={styles.formSectionTitle}>Pagas extra</Text>
+        <Text style={styles.helperText}>Crea conceptos positivos de nómina, como limpieza de ropa, transporte o dietas.</Text>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Nombre</Text>
+          <TextInput value={additionName} onChangeText={setAdditionName} style={styles.input} placeholder="Ej. Limpieza de ropa" placeholderTextColor="#94A3B8" />
+        </View>
+
+        <DecimalInput
+          label="Cantidad"
+          value={parseNumber(additionAmount)}
+          onValueChange={(value) => setAdditionAmount(String(value))}
+          styles={styles}
+        />
+
+        <SelectField
+          colors={colors}
+          label="Cómo se calcula"
+          value={additionMode}
+          onChange={(value) => setAdditionMode(value as PayrollAdditionMode)}
+          options={additionModeOptions}
+          styles={styles}
+        />
+
+        <Pressable style={[styles.primaryButton, savingAddition && styles.disabledButton]} onPress={saveAddition} disabled={savingAddition}>
+          {savingAddition ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>{editingAdditionId ? 'Guardar concepto' : 'Añadir concepto'}</Text>}
+        </Pressable>
+
+        <View style={styles.templateList}>
+          {payrollAdditions.map((addition) => (
+            <View key={addition.id} style={styles.templateCard}>
+              <View style={styles.shiftInfo}>
+                <Text style={styles.templateName}>{addition.name}</Text>
+                <Text style={styles.shiftMeta}>
+                  {Number(addition.amount || 0).toFixed(2)} € · {getAdditionModeLabel(addition.mode)}
+                </Text>
+              </View>
+              <View style={styles.rowActions}>
+                <Pressable style={styles.smallIconButton} onPress={() => startEditAddition(addition)}>
+                  <Pencil size={16} color={colors.blue} />
+                </Pressable>
+                <Pressable style={styles.smallIconButton} onPress={() => deleteAddition(addition.id)}>
+                  <Trash2 size={16} color={colors.blue} />
+                </Pressable>
+              </View>
+            </View>
+          ))}
+        </View>
       </View>
 
       <View style={styles.dayPanel}>

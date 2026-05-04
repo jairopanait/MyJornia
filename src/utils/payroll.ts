@@ -1,4 +1,4 @@
-import type { NightPayRange, PayrollDeduction, ShiftIconId, WorkRules, WorkShift } from '../types'
+import type { NightPayRange, PayrollAddition, PayrollDeduction, ShiftIconId, WorkRules, WorkShift } from '../types'
 
 export function parseNumber(value: string) {
   const normalized = value.replace(',', '.').trim()
@@ -95,8 +95,16 @@ function getActiveNightRanges(rules: WorkRules, nightPayRanges: NightPayRange[])
   ]
 }
 
-export function buildSummary(shifts: WorkShift[], rules: WorkRules, holidayDates: string[], deductions: PayrollDeduction[], nightPayRanges: NightPayRange[] = []) {
+export function buildSummary(
+  shifts: WorkShift[],
+  rules: WorkRules,
+  holidayDates: string[],
+  deductions: PayrollDeduction[],
+  nightPayRanges: NightPayRange[] = [],
+  payrollAdditions: PayrollAddition[] = [],
+) {
   const holidaySet = new Set(holidayDates)
+  const workedShifts = shifts.filter((shift) => !shift.is_time_off)
   const totalHours = shifts.reduce((total, shift) => total + getShiftHours(shift), 0)
   const contractHours = Number(rules.contract_hours || rules.monthly_extra_hours || 0)
   const complementaryHours = Math.max(0, totalHours - contractHours)
@@ -113,7 +121,7 @@ export function buildSummary(shifts: WorkShift[], rules: WorkRules, holidayDates
   })
   const nightHours = nightRangeRows.reduce((total, range) => total + range.hours, 0)
   const nightPay = nightRangeRows.reduce((total, range) => total + range.pay, 0)
-  const holidayShifts = shifts.filter((shift) => holidaySet.has(shift.work_date) && !shift.is_time_off)
+  const holidayShifts = workedShifts.filter((shift) => holidaySet.has(shift.work_date))
   const holidayHours = holidayShifts.reduce((total, shift) => total + getShiftHours(shift), 0)
   const baseSalary = Number(rules.base_salary || 0)
   const complementaryPay = complementaryHours * Number(rules.complementary_hour_rate || 0)
@@ -121,7 +129,18 @@ export function buildSummary(shifts: WorkShift[], rules: WorkRules, holidayDates
     rules.holiday_pay_mode === 'shift'
       ? holidayShifts.length * Number(rules.holiday_shift_rate || 0)
       : holidayHours * Number(rules.holiday_hour_rate || 0)
-  const grossSalary = baseSalary + complementaryPay + nightPay + holidayPay
+  const additionRows = payrollAdditions.map((addition) => {
+    const amount = Number(addition.amount || 0)
+    const quantity = addition.mode === 'per_shift' ? workedShifts.length : addition.mode === 'per_hour' ? totalHours : 1
+
+    return {
+      ...addition,
+      quantity,
+      total: amount * quantity,
+    }
+  })
+  const additionsPay = additionRows.reduce((total, addition) => total + addition.total, 0)
+  const grossSalary = baseSalary + complementaryPay + nightPay + holidayPay + additionsPay
   const deductionRows = deductions.map((deduction) => ({
     ...deduction,
     amount: grossSalary * (Number(deduction.percentage || 0) / 100),
@@ -132,6 +151,7 @@ export function buildSummary(shifts: WorkShift[], rules: WorkRules, holidayDates
     totalHours,
     contractHours,
     complementaryHours,
+    workedShiftCount: workedShifts.length,
     nightHours,
     nightPay,
     nightRangeRows,
@@ -140,6 +160,8 @@ export function buildSummary(shifts: WorkShift[], rules: WorkRules, holidayDates
     baseSalary,
     complementaryPay,
     holidayPay,
+    additionRows,
+    additionsPay,
     grossSalary,
     deductionRows,
     totalDeductions,
