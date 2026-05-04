@@ -6,43 +6,100 @@ import type { AppColors, AppStyles } from '../theme'
 
 type AuthScreenProps = {
   authMode: 'login' | 'register'
+  cancelPasswordRecovery: () => void
   colors: AppColors
+  confirmNewPassword: string
   email: string
   fullName: string
   handlePasswordReset: () => void
   handleSubmit: () => void
+  handleUpdatePassword: () => void
   isDark: boolean
   loading: boolean
+  newPassword: string
   password: string
+  passwordRecoveryMode: boolean
   resetLoading: boolean
   setAuthMode: Dispatch<SetStateAction<'login' | 'register'>>
+  setConfirmNewPassword: (value: string) => void
   setEmail: (value: string) => void
   setFullName: (value: string) => void
+  setNewPassword: (value: string) => void
   setPassword: (value: string) => void
   setThemeMode: Dispatch<SetStateAction<ThemeMode>>
   styles: AppStyles
+  updatingPassword: boolean
 }
 
 export function AuthScreen({
   authMode,
+  cancelPasswordRecovery,
   colors,
+  confirmNewPassword,
   email,
   fullName,
   handlePasswordReset,
   handleSubmit,
+  handleUpdatePassword,
   isDark,
   loading,
+  newPassword,
   password,
+  passwordRecoveryMode,
   resetLoading,
   setAuthMode,
+  setConfirmNewPassword,
   setEmail,
   setFullName,
+  setNewPassword,
   setPassword,
   setThemeMode,
   styles,
+  updatingPassword,
 }: AuthScreenProps) {
   const isRegistering = authMode === 'register'
   const title = isRegistering ? 'Crear cuenta' : 'Iniciar sesión'
+
+  function renderPasswordRecoveryForm() {
+    return (
+      <View style={styles.authPanel}>
+        <Text style={styles.formTitle}>Nueva contraseña</Text>
+        <Text style={styles.passwordHint}>Debe tener mínimo 8 caracteres, un número y un símbolo.</Text>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Nueva contraseña</Text>
+          <TextInput
+            value={newPassword}
+            onChangeText={setNewPassword}
+            placeholder="Mínimo 8, número y símbolo"
+            placeholderTextColor="#94A3B8"
+            secureTextEntry
+            style={styles.input}
+          />
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Repetir contraseña</Text>
+          <TextInput
+            value={confirmNewPassword}
+            onChangeText={setConfirmNewPassword}
+            placeholder="Repite la contraseña"
+            placeholderTextColor="#94A3B8"
+            secureTextEntry
+            style={styles.input}
+          />
+        </View>
+
+        <Pressable style={[styles.primaryButton, updatingPassword && styles.disabledButton]} onPress={handleUpdatePassword} disabled={updatingPassword}>
+          {updatingPassword ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Guardar contraseña</Text>}
+        </Pressable>
+
+        <Pressable style={styles.authLinkButton} onPress={cancelPasswordRecovery}>
+          <Text style={styles.authLinkText}>Cancelar</Text>
+        </Pressable>
+      </View>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -63,63 +120,67 @@ export function AuthScreen({
             </View>
           </View>
 
-          <View style={styles.authPanel}>
-            <View style={styles.segmentedControl}>
-              <Pressable style={[styles.segmentButton, !isRegistering && styles.segmentButtonActive]} onPress={() => setAuthMode('login')}>
-                <Text style={[styles.segmentText, !isRegistering && styles.segmentTextActive]}>Entrar</Text>
-              </Pressable>
-              <Pressable style={[styles.segmentButton, isRegistering && styles.segmentButtonActive]} onPress={() => setAuthMode('register')}>
-                <Text style={[styles.segmentText, isRegistering && styles.segmentTextActive]}>Registro</Text>
-              </Pressable>
-            </View>
-
-            <Text style={styles.formTitle}>{title}</Text>
-
-            {isRegistering ? (
-              <View style={styles.fieldGroup}>
-                <Text style={styles.label}>Nombre</Text>
-                <TextInput value={fullName} onChangeText={setFullName} placeholder="Tu nombre" placeholderTextColor="#94A3B8" style={styles.input} />
+          {passwordRecoveryMode ? (
+            renderPasswordRecoveryForm()
+          ) : (
+            <View style={styles.authPanel}>
+              <View style={styles.segmentedControl}>
+                <Pressable style={[styles.segmentButton, !isRegistering && styles.segmentButtonActive]} onPress={() => setAuthMode('login')}>
+                  <Text style={[styles.segmentText, !isRegistering && styles.segmentTextActive]}>Entrar</Text>
+                </Pressable>
+                <Pressable style={[styles.segmentButton, isRegistering && styles.segmentButtonActive]} onPress={() => setAuthMode('register')}>
+                  <Text style={[styles.segmentText, isRegistering && styles.segmentTextActive]}>Registro</Text>
+                </Pressable>
               </View>
-            ) : null}
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Correo</Text>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="tu@email.com"
-                placeholderTextColor="#94A3B8"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.input}
-              />
-            </View>
+              <Text style={styles.formTitle}>{title}</Text>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Contraseña</Text>
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder={isRegistering ? 'Mínimo 8, número y símbolo' : 'Tu contraseña'}
-                placeholderTextColor="#94A3B8"
-                secureTextEntry
-                style={styles.input}
-              />
-            </View>
+              {isRegistering ? (
+                <View style={styles.fieldGroup}>
+                  <Text style={styles.label}>Nombre</Text>
+                  <TextInput value={fullName} onChangeText={setFullName} placeholder="Tu nombre" placeholderTextColor="#94A3B8" style={styles.input} />
+                </View>
+              ) : null}
 
-            {!isRegistering ? (
-              <Pressable style={styles.authLinkButton} onPress={handlePasswordReset} disabled={resetLoading}>
-                <Text style={styles.authLinkText}>{resetLoading ? 'Enviando correo...' : '¿Olvidaste tu contraseña?'}</Text>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Correo</Text>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="tu@email.com"
+                  placeholderTextColor="#94A3B8"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.input}
+                />
+              </View>
+
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Contraseña</Text>
+                <TextInput
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder={isRegistering ? 'Mínimo 8, número y símbolo' : 'Tu contraseña'}
+                  placeholderTextColor="#94A3B8"
+                  secureTextEntry
+                  style={styles.input}
+                />
+              </View>
+
+              {!isRegistering ? (
+                <Pressable style={styles.authLinkButton} onPress={handlePasswordReset} disabled={resetLoading}>
+                  <Text style={styles.authLinkText}>{resetLoading ? 'Enviando correo...' : '¿Olvidaste tu contraseña?'}</Text>
+                </Pressable>
+              ) : (
+                <Text style={styles.passwordHint}>Debe tener mínimo 8 caracteres, un número y un símbolo.</Text>
+              )}
+
+              <Pressable style={[styles.primaryButton, loading && styles.disabledButton]} onPress={handleSubmit} disabled={loading}>
+                {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>{title}</Text>}
               </Pressable>
-            ) : (
-              <Text style={styles.passwordHint}>Debe tener mínimo 8 caracteres, un número y un símbolo.</Text>
-            )}
-
-            <Pressable style={[styles.primaryButton, loading && styles.disabledButton]} onPress={handleSubmit} disabled={loading}>
-              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>{title}</Text>}
-            </Pressable>
-          </View>
+            </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

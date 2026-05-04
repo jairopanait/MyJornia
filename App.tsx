@@ -26,7 +26,7 @@ export default function App() {
     return <LoadingScreen colors={colors} styles={styles} />
   }
 
-  if (auth.session) {
+  if (auth.session && !auth.passwordRecoveryMode) {
     return (
       <AppShell
         activeTab={workday.activeTab}
@@ -50,21 +50,29 @@ export default function App() {
   return (
     <AuthScreen
       authMode={auth.authMode}
+      cancelPasswordRecovery={auth.cancelPasswordRecovery}
       colors={colors}
+      confirmNewPassword={auth.confirmNewPassword}
       email={auth.email}
       fullName={auth.fullName}
       handlePasswordReset={auth.handlePasswordReset}
       handleSubmit={auth.handleSubmit}
+      handleUpdatePassword={auth.handleUpdatePassword}
       isDark={isDark}
       loading={auth.loading}
+      newPassword={auth.newPassword}
       password={auth.password}
+      passwordRecoveryMode={auth.passwordRecoveryMode}
       resetLoading={auth.resetLoading}
       setAuthMode={auth.setAuthMode}
+      setConfirmNewPassword={auth.setConfirmNewPassword}
       setEmail={auth.setEmail}
       setFullName={auth.setFullName}
+      setNewPassword={auth.setNewPassword}
       setPassword={auth.setPassword}
       setThemeMode={setThemeMode}
       styles={styles}
+      updatingPassword={auth.updatingPassword}
     />
   )
 }
