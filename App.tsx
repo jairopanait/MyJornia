@@ -56,6 +56,12 @@ type ShiftType = {
   default_end_time: string | null
 }
 
+type AdminStats = {
+  profiles: number
+  shifts: number
+  shiftTypes: number
+}
+
 type AppColors = (typeof palettes)[ThemeMode]
 
 const palettes = {
@@ -276,6 +282,9 @@ export default function App() {
   const [calendarView, setCalendarView] = useState<CalendarViewMode>('month')
   const [shifts, setShifts] = useState<WorkShift[]>([])
   const [shiftTypes, setShiftTypes] = useState<ShiftType[]>([])
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null)
+  const [adminLoading, setAdminLoading] = useState(false)
   const [calendarLoading, setCalendarLoading] = useState(false)
   const [savingShift, setSavingShift] = useState(false)
   const [shiftActionMode, setShiftActionMode] = useState<ShiftActionMode>(null)
@@ -350,10 +359,13 @@ export default function App() {
     if (!session) {
       setShifts([])
       setShiftTypes([])
+      setIsAdmin(false)
+      setAdminStats(null)
       return
     }
 
     loadShiftTypes()
+    loadAdminState()
   }, [session])
 
   useEffect(() => {
@@ -486,6 +498,52 @@ export default function App() {
     }
 
     setShiftTypes((data ?? []) as ShiftType[])
+  }
+
+  async function loadAdminState() {
+    if (!supabase || !session) {
+      return
+    }
+
+    const { data, error } = await supabase.rpc('is_admin')
+
+    if (error) {
+      setIsAdmin(false)
+      setAdminStats(null)
+      return
+    }
+
+    const nextIsAdmin = Boolean(data)
+    setIsAdmin(nextIsAdmin)
+
+    if (nextIsAdmin) {
+      await loadAdminStats()
+    }
+  }
+
+  async function loadAdminStats() {
+    if (!supabase) {
+      return
+    }
+
+    setAdminLoading(true)
+    const [profilesResult, shiftsResult, shiftTypesResult] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('shifts').select('id', { count: 'exact', head: true }),
+      supabase.from('shift_types').select('id', { count: 'exact', head: true }),
+    ])
+    setAdminLoading(false)
+
+    if (profilesResult.error || shiftsResult.error || shiftTypesResult.error) {
+      Alert.alert('Panel admin no disponible', 'Ejecuta primero el SQL de administrador en Supabase.')
+      return
+    }
+
+    setAdminStats({
+      profiles: profilesResult.count ?? 0,
+      shifts: shiftsResult.count ?? 0,
+      shiftTypes: shiftTypesResult.count ?? 0,
+    })
   }
 
   function changeMonth(monthOffset: number) {
@@ -1163,6 +1221,46 @@ export default function App() {
     )
   }
 
+  function renderProfileScreen() {
+    return (
+      <>
+        <View style={styles.placeholderPanel}>
+          <Text style={styles.placeholderTitle}>Perfil</Text>
+          <Text style={styles.placeholderText}>Sesion iniciada como {session?.user.email ?? greetingName}.</Text>
+          {isAdmin ? (
+            <View style={styles.adminBadge}>
+              <Text style={styles.adminBadgeText}>Administrador</Text>
+            </View>
+          ) : null}
+        </View>
+
+        {isAdmin ? (
+          <View style={styles.dayPanel}>
+            <Text style={styles.panelEyebrow}>Panel admin</Text>
+            <Text style={styles.selectedDateTitle}>Vista global</Text>
+            <View style={styles.adminStatsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>{adminStats?.profiles ?? 0}</Text>
+                <Text style={styles.statLabel}>Usuarios</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>{adminStats?.shifts ?? 0}</Text>
+                <Text style={styles.statLabel}>Turnos</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>{adminStats?.shiftTypes ?? 0}</Text>
+                <Text style={styles.statLabel}>Plantillas</Text>
+              </View>
+            </View>
+            <Pressable style={[styles.primaryButton, adminLoading && styles.disabledButton]} onPress={loadAdminStats} disabled={adminLoading}>
+              {adminLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Actualizar panel</Text>}
+            </Pressable>
+          </View>
+        ) : null}
+      </>
+    )
+  }
+
   function renderActiveTab() {
     if (activeTab === 'calendar') {
       return renderCalendarScreen()
@@ -1180,7 +1278,7 @@ export default function App() {
       return renderPlaceholderScreen('Ajustes', 'Aqui ira la configuracion de la app, soporte, preferencias y modo visual.')
     }
 
-    return renderPlaceholderScreen('Perfil', `Sesion iniciada como ${session?.user.email ?? greetingName}.`)
+    return renderProfileScreen()
   }
 
   if (initializing) {
@@ -1517,6 +1615,24 @@ const createStyles = (colors: AppColors) =>
       color: colors.muted,
       fontSize: 13,
       fontWeight: '800',
+    },
+    adminBadge: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.blueStrong,
+      borderRadius: 8,
+      marginTop: 14,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    adminBadgeText: {
+      color: '#FFFFFF',
+      fontSize: 13,
+      fontWeight: '900',
+    },
+    adminStatsGrid: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 14,
     },
     calendarViewSelector: {
       backgroundColor: colors.segment,
