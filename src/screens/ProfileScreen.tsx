@@ -1,6 +1,8 @@
 import type { Dispatch, SetStateAction } from 'react'
-import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Linking, Pressable, Text, TextInput, View } from 'react-native'
 import { appInfo } from '../constants'
+import type { MfaController } from '../hooks/useMfaController'
+import type { SecurityController } from '../hooks/useSecurityController'
 import type { AppStyles } from '../theme'
 import type { AdminStats, ThemeMode } from '../types'
 
@@ -14,6 +16,8 @@ type ProfileScreenProps = {
   isAdmin: boolean
   isDark: boolean
   loadAdminStats: () => void
+  mfa: MfaController
+  security: SecurityController
   sessionEmail?: string
   setThemeMode: Dispatch<SetStateAction<ThemeMode>>
   styles: AppStyles
@@ -51,6 +55,8 @@ export function ProfileScreen({
   isAdmin,
   isDark,
   loadAdminStats,
+  mfa,
+  security,
   sessionEmail,
   setThemeMode,
   styles,
@@ -70,6 +76,63 @@ export function ProfileScreen({
         <MenuRow styles={styles} title="Usuario" value={sessionEmail ?? greetingName} />
         {isAdmin ? <MenuRow styles={styles} title="Rol" value="Administrador" /> : null}
         <MenuRow styles={styles} title="Cerrar sesión" onPress={handleSignOut} isLast />
+      </View>
+
+      <Text style={styles.sectionTitle}>Seguridad</Text>
+      <View style={styles.groupedPanel}>
+        <MenuRow
+          styles={styles}
+          title="Bloqueo de app"
+          value={security.appLockEnabled ? 'Activado' : 'Desactivado'}
+          detail={
+            security.biometricAvailable
+              ? `Pedir ${security.biometricLabel} al volver a abrir MyWorkday`
+              : 'Activa Face ID, huella o bloqueo seguro en tu móvil'
+          }
+          onPress={security.toggleAppLock}
+        />
+        <MenuRow
+          styles={styles}
+          title="Doble factor"
+          value={mfa.verifiedFactors.length > 0 ? 'Activado' : mfa.enrollment ? 'Pendiente' : 'Desactivado'}
+          detail="Código temporal con una app autenticadora"
+          onPress={mfa.verifiedFactors.length === 0 && !mfa.enrollment ? mfa.beginEnrollment : undefined}
+        />
+        {mfa.enrollment ? (
+          <View style={styles.fieldGroup}>
+            <Text style={styles.helperText}>Añade esta clave en tu app autenticadora y escribe el código que genere.</Text>
+            <Text selectable style={styles.configCode}>
+              {mfa.enrollment.secret}
+            </Text>
+            <TextInput
+              autoComplete="one-time-code"
+              keyboardType="number-pad"
+              maxLength={6}
+              onChangeText={mfa.setEnrollmentCode}
+              placeholder="Código de 6 dígitos"
+              placeholderTextColor="#8A94A6"
+              style={styles.input}
+              textContentType="oneTimeCode"
+              value={mfa.enrollmentCode}
+            />
+            <Pressable
+              style={[styles.primaryButton, mfa.loading && styles.disabledButton]}
+              onPress={mfa.verifyEnrollment}
+              disabled={mfa.loading}
+            >
+              {mfa.loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Activar doble factor</Text>}
+            </Pressable>
+            <Pressable style={styles.authLinkButton} onPress={mfa.cancelEnrollment}>
+              <Text style={styles.authLinkText}>Cancelar activación</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        {mfa.verifiedFactors.length > 0 ? (
+          <Pressable style={[styles.secondaryButton, { marginBottom: 14, marginTop: 4 }]} onPress={mfa.disableFirstFactor}>
+            <Text style={styles.secondaryButtonText}>Desactivar doble factor</Text>
+          </Pressable>
+        ) : null}
+        <MenuRow styles={styles} title="Sesión segura" value="Keychain/Keystore" detail="La sesión se guarda cifrada en el móvil" isLast />
       </View>
 
       <Text style={styles.sectionTitle}>Preferencias</Text>

@@ -5,7 +5,11 @@ create table if not exists public.app_admins (
 
 alter table public.app_admins enable row level security;
 
-create or replace function public.is_admin(user_uuid uuid default auth.uid())
+create schema if not exists private;
+revoke all on schema private from public;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_admin(user_uuid uuid default auth.uid())
 returns boolean
 language sql
 stable
@@ -17,6 +21,19 @@ as $$
     from public.app_admins
     where app_admins.user_id = user_uuid
   );
+$$;
+
+revoke all on function private.is_admin(uuid) from public;
+grant execute on function private.is_admin(uuid) to authenticated;
+
+create or replace function public.is_admin(user_uuid uuid default auth.uid())
+returns boolean
+language sql
+stable
+security invoker
+set search_path = public, private
+as $$
+  select private.is_admin((select auth.uid()));
 $$;
 
 revoke all on function public.is_admin(uuid) from public;

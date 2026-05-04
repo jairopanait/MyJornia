@@ -5,6 +5,8 @@ import { SettingsScreen } from '../screens/SettingsScreen'
 import { ShiftTypesScreen } from '../screens/ShiftTypesScreen'
 import { SummaryScreen } from '../screens/SummaryScreen'
 import type { AppColors, AppStyles } from '../theme'
+import type { MfaController } from '../hooks/useMfaController'
+import type { SecurityController } from '../hooks/useSecurityController'
 import type { WorkdayController } from '../hooks/useWorkdayController'
 import type { ThemeMode } from '../types'
 
@@ -13,12 +15,24 @@ type ActiveTabContentProps = {
   controller: WorkdayController
   handleSignOut: () => void
   isDark: boolean
+  mfa: MfaController
+  security: SecurityController
   sessionEmail?: string
   setThemeMode: Dispatch<SetStateAction<ThemeMode>>
   styles: AppStyles
 }
 
-export function ActiveTabContent({ colors, controller, handleSignOut, isDark, sessionEmail, setThemeMode, styles }: ActiveTabContentProps) {
+export function ActiveTabContent({
+  colors,
+  controller,
+  handleSignOut,
+  isDark,
+  mfa,
+  security,
+  sessionEmail,
+  setThemeMode,
+  styles,
+}: ActiveTabContentProps) {
   if (controller.activeTab === 'calendar') {
     return (
       <CalendarScreen
@@ -164,6 +178,8 @@ export function ActiveTabContent({ colors, controller, handleSignOut, isDark, se
       handleSignOut={handleSignOut}
       isDark={isDark}
       loadAdminStats={controller.loadAdminStats}
+      mfa={mfa}
+      security={security}
       sessionEmail={sessionEmail}
       setThemeMode={setThemeMode}
       styles={styles}

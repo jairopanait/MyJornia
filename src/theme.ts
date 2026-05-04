@@ -44,6 +44,17 @@ export const createStyles = (colors: AppColors) =>
       justifyContent: 'center',
       backgroundColor: colors.background,
     },
+    loadingLogo: {
+      height: 154,
+      marginBottom: 18,
+      width: 154,
+    },
+    loadingTitle: {
+      color: colors.text,
+      fontSize: 32,
+      fontWeight: '900',
+      marginBottom: 22,
+    },
     keyboardView: {
       flex: 1,
     },
