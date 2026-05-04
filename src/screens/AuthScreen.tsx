@@ -1,13 +1,11 @@
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import type { Dispatch, SetStateAction } from 'react'
-import type { ThemeMode } from '../types'
-import type { AppColors, AppStyles } from '../theme'
+import type { AppStyles } from '../theme'
 
 type AuthScreenProps = {
   authMode: 'login' | 'register'
   cancelPasswordRecovery: () => void
-  colors: AppColors
   confirmNewPassword: string
   email: string
   fullName: string
@@ -26,7 +24,6 @@ type AuthScreenProps = {
   setFullName: (value: string) => void
   setNewPassword: (value: string) => void
   setPassword: (value: string) => void
-  setThemeMode: Dispatch<SetStateAction<ThemeMode>>
   styles: AppStyles
   updatingPassword: boolean
 }
@@ -34,7 +31,6 @@ type AuthScreenProps = {
 export function AuthScreen({
   authMode,
   cancelPasswordRecovery,
-  colors,
   confirmNewPassword,
   email,
   fullName,
@@ -53,7 +49,6 @@ export function AuthScreen({
   setFullName,
   setNewPassword,
   setPassword,
-  setThemeMode,
   styles,
   updatingPassword,
 }: AuthScreenProps) {
@@ -109,15 +104,6 @@ export function AuthScreen({
           <View style={styles.brandBlock}>
             <Text style={styles.logo}>MyWorkday</Text>
             <Text style={styles.headline}>Organiza tus turnos sin perder la cuenta de tus horas.</Text>
-            <View style={styles.themeControl}>
-              <Text style={styles.themeText}>{isDark ? 'Modo oscuro' : 'Modo claro'}</Text>
-              <Switch
-                value={isDark}
-                onValueChange={() => setThemeMode(isDark ? 'light' : 'dark')}
-                trackColor={{ false: '#CBD5E1', true: colors.blueStrong }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
           </View>
 
           {passwordRecoveryMode ? (

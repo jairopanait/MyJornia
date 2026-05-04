@@ -29,6 +29,17 @@ type ShiftTypesScreenProps = {
   templateStart: string
 }
 
+function getTemplateDuration(template: ShiftType) {
+  if (template.is_time_off) {
+    return 'Sin horas'
+  }
+
+  const start = normalizeTime(template.default_start_time) || '--:--'
+  const end = normalizeTime(template.default_end_time) || '--:--'
+
+  return `${start} - ${end}`
+}
+
 export function ShiftTypesScreen({
   colors,
   editingTemplateId,
@@ -53,11 +64,39 @@ export function ShiftTypesScreen({
 }: ShiftTypesScreenProps) {
   return (
     <>
+      <View style={styles.groupedPanel}>
+        <Text style={styles.groupedPanelTitle}>Plantillas de turnos</Text>
+        {shiftTypes.length === 0 ? (
+          <Text style={styles.emptyText}>Aún no has creado turnos personalizados.</Text>
+        ) : (
+          <View style={styles.templateList}>
+            {shiftTypes.map((template) => (
+              <View key={template.id} style={styles.templateCard}>
+                <View style={[styles.roundedIconBadge, { backgroundColor: template.color }]}>
+                  <ShiftIcon color="#FFFFFF" id={template.icon} size={24} />
+                </View>
+                <View style={styles.shiftInfo}>
+                  <Text style={styles.templateName}>{template.name}</Text>
+                  <Text style={styles.shiftMeta}>{getTemplateDuration(template)}</Text>
+                </View>
+                <View style={styles.rowActions}>
+                  <Pressable style={styles.smallIconButton} onPress={() => startEditTemplate(template)}>
+                    <Pencil size={16} color={colors.blue} />
+                  </Pressable>
+                  <Pressable style={styles.smallIconButton} onPress={() => handleDeleteTemplate(template.id)}>
+                    <Trash2 size={16} color={colors.blue} />
+                  </Pressable>
+                </View>
+                <Text style={styles.menuChevron}>›</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+
       <View style={styles.formPanel}>
-        <Text style={styles.formSectionTitle}>{editingTemplateId ? 'Editar turno personalizado' : 'Crear turno personalizado'}</Text>
-        <Text style={styles.helperText}>
-          Estos turnos quedan guardados para añadirlos rápido al calendario. Si editas uno ya añadido, no cambia esta plantilla.
-        </Text>
+        <Text style={styles.formSectionTitle}>{editingTemplateId ? 'Editar plantilla' : 'Nueva plantilla'}</Text>
+        <Text style={styles.helperText}>Guarda turnos para añadirlos rápido al calendario sin volver a escribir horarios.</Text>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Nombre</Text>
@@ -86,11 +125,11 @@ export function ShiftTypesScreen({
         {!templateIsTimeOff ? (
           <View style={styles.timeRow}>
             <View style={styles.timeField}>
-              <Text style={styles.label}>Inicio por defecto</Text>
+              <Text style={styles.label}>Inicio</Text>
               <TextInput value={templateStart} onChangeText={setTemplateStart} style={styles.input} placeholder="08:00" placeholderTextColor="#94A3B8" />
             </View>
             <View style={styles.timeField}>
-              <Text style={styles.label}>Fin por defecto</Text>
+              <Text style={styles.label}>Fin</Text>
               <TextInput value={templateEnd} onChangeText={setTemplateEnd} style={styles.input} placeholder="16:00" placeholderTextColor="#94A3B8" />
             </View>
           </View>
@@ -99,39 +138,6 @@ export function ShiftTypesScreen({
         <Pressable style={[styles.primaryButton, savingTemplate && styles.disabledButton]} onPress={handleSaveTemplate} disabled={savingTemplate}>
           {savingTemplate ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>{editingTemplateId ? 'Guardar plantilla' : 'Crear plantilla'}</Text>}
         </Pressable>
-      </View>
-
-      <View style={styles.dayPanel}>
-        <Text style={styles.panelEyebrow}>Turnos guardados</Text>
-        {shiftTypes.length === 0 ? (
-          <Text style={styles.emptyText}>Aún no has creado turnos personalizados.</Text>
-        ) : (
-          <View style={styles.templateList}>
-            {shiftTypes.map((template) => (
-              <View key={template.id} style={styles.templateCard}>
-                <View style={[styles.templateColor, { backgroundColor: template.color, alignItems: 'center', justifyContent: 'center' }]}>
-                  <ShiftIcon color="#FFFFFF" id={template.icon} size={18} />
-                </View>
-                <View style={styles.shiftInfo}>
-                  <Text style={styles.templateName}>{template.name}</Text>
-                  <Text style={styles.shiftMeta}>
-                    {template.is_time_off
-                      ? 'Sin horas'
-                      : `${normalizeTime(template.default_start_time) || '--:--'} - ${normalizeTime(template.default_end_time) || '--:--'}`}
-                  </Text>
-                </View>
-                <View style={styles.rowActions}>
-                  <Pressable style={styles.smallIconButton} onPress={() => startEditTemplate(template)}>
-                    <Pencil size={16} color={colors.blue} />
-                  </Pressable>
-                  <Pressable style={styles.smallIconButton} onPress={() => handleDeleteTemplate(template.id)}>
-                    <Trash2 size={16} color={colors.blue} />
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
       </View>
     </>
   )

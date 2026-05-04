@@ -2,6 +2,7 @@ import { Pressable, Text, View } from 'react-native'
 import { SummaryRow } from '../components/SummaryRow'
 import type { AppStyles } from '../theme'
 import type { WorkRules } from '../types'
+import { normalizeTime } from '../utils/dates'
 import type { PayrollSummary } from '../utils/payroll'
 import { formatCurrency } from '../utils/payroll'
 
@@ -28,50 +29,38 @@ export function SummaryScreen({ changeMonth, monthTitle, payrollSummary, styles,
 
   return (
     <>
-      <View style={styles.calendarPanel}>
-        <View style={styles.monthBar}>
-          <Pressable style={styles.iconButton} onPress={() => changeMonth(-1)}>
-            <Text style={styles.iconButtonText}>{'<'}</Text>
-          </Pressable>
-          <Text style={styles.monthTitle}>{monthTitle}</Text>
-          <Pressable style={styles.iconButton} onPress={() => changeMonth(1)}>
-            <Text style={styles.iconButtonText}>{'>'}</Text>
-          </Pressable>
-        </View>
-        <Text style={styles.helperText}>Resumen calculado con los turnos del mes y los ajustes de tu perfil.</Text>
+      <View style={styles.monthBar}>
+        <Pressable style={styles.iconButton} onPress={() => changeMonth(-1)}>
+          <Text style={styles.iconButtonText}>{'<'}</Text>
+        </Pressable>
+        <Text style={styles.monthTitle}>{monthTitle}</Text>
+        <Pressable style={styles.iconButton} onPress={() => changeMonth(1)}>
+          <Text style={styles.iconButtonText}>{'>'}</Text>
+        </Pressable>
       </View>
 
-      <View style={styles.statsRow}>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{payrollSummary.totalHours.toFixed(1)}h</Text>
-          <Text style={styles.statLabel}>Trabajadas</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{payrollSummary.complementaryHours.toFixed(1)}h</Text>
-          <Text style={styles.statLabel}>Extras</Text>
-        </View>
+      <View style={styles.groupedPanel}>
+        <Text style={styles.groupedPanelTitle}>Balance del mes</Text>
+        <SummaryRow styles={styles} label="Turnos trabajados" value={String(payrollSummary.workedShiftCount)} />
+        <SummaryRow styles={styles} label="Turnos en festivo" value={String(payrollSummary.holidayShiftCount)} />
+        <SummaryRow styles={styles} label="Extras" value={`${payrollSummary.complementaryHours.toFixed(1)}h`} />
+        <SummaryRow styles={styles} label="Nocturnas" value={`${payrollSummary.nightHours.toFixed(1)}h`} />
       </View>
 
-      <View style={styles.dayPanel}>
-        <Text style={styles.panelEyebrow}>Horas</Text>
-        <SummaryRow styles={styles} label="Horas de contrato" value={`${payrollSummary.contractHours.toFixed(1)}h`} />
-        <SummaryRow styles={styles} label="Horas totales" value={`${payrollSummary.totalHours.toFixed(1)}h`} />
-        <SummaryRow styles={styles} label="Horas complementarias/extras" value={`${payrollSummary.complementaryHours.toFixed(1)}h`} />
-        <SummaryRow styles={styles} label="Horas nocturnas" value={`${payrollSummary.nightHours.toFixed(1)}h`} detail={`${payrollSummary.nightRangeRows.length} tramo(s)`} />
+      <View style={styles.groupedPanel}>
+        <Text style={styles.groupedPanelTitle}>Horas reales</Text>
+        <SummaryRow styles={styles} label="Contrato" value={`${payrollSummary.contractHours.toFixed(2).replace('.', ',')} h`} />
+        <SummaryRow styles={styles} label="Trabajadas" value={`${payrollSummary.totalHours.toFixed(2).replace('.', ',')} h`} />
+        <SummaryRow styles={styles} label="Complementarias" value={`${payrollSummary.complementaryHours.toFixed(2).replace('.', ',')} h`} />
+        <SummaryRow styles={styles} label="Festivas" value={`${payrollSummary.holidayHours.toFixed(2).replace('.', ',')} h`} />
+      </View>
+
+      <View style={styles.groupedPanel}>
+        <Text style={styles.groupedPanelTitle}>Estimación salarial</Text>
+        <SummaryRow styles={styles} label="Salario base" value={formatCurrency(payrollSummary.baseSalary)} />
         <SummaryRow
           styles={styles}
-          label="Horas festivas"
-          value={`${payrollSummary.holidayHours.toFixed(1)}h`}
-          detail={`${payrollSummary.holidayShiftCount} turno${payrollSummary.holidayShiftCount === 1 ? '' : 's'} en festivo`}
-        />
-      </View>
-
-      <View style={styles.dayPanel}>
-        <Text style={styles.panelEyebrow}>Resumen salarial</Text>
-        <SummaryRow styles={styles} label="Salario bruto base" value={formatCurrency(payrollSummary.baseSalary)} />
-        <SummaryRow
-          styles={styles}
-          label="Horas complementarias"
+          label="Horas extras"
           value={formatCurrency(payrollSummary.complementaryPay)}
           detail={`${payrollSummary.complementaryHours.toFixed(1)}h x ${formatCurrency(Number(workRules.complementary_hour_rate || 0))}`}
         />
@@ -90,7 +79,7 @@ export function SummaryScreen({ changeMonth, monthTitle, payrollSummary, styles,
               <SummaryRow
                 key={range.id}
                 styles={styles}
-                label={`${range.start_time} - ${range.end_time}`}
+                label={`${normalizeTime(range.start_time)} - ${normalizeTime(range.end_time)}`}
                 value={formatCurrency(range.pay)}
                 detail={`${range.hours.toFixed(1)}h x ${formatCurrency(Number(range.hour_rate || 0))}`}
               />
@@ -115,12 +104,11 @@ export function SummaryScreen({ changeMonth, monthTitle, payrollSummary, styles,
             detail={getAdditionDetail(addition.mode, addition.quantity, Number(addition.amount || 0))}
           />
         ))}
-        <View style={styles.summaryDivider} />
-        <SummaryRow styles={styles} label="Total bruto estimado" value={formatCurrency(payrollSummary.grossSalary)} />
+        <SummaryRow styles={styles} label="Total bruto" value={formatCurrency(payrollSummary.grossSalary)} />
       </View>
 
-      <View style={styles.dayPanel}>
-        <Text style={styles.panelEyebrow}>Deducciones</Text>
+      <View style={styles.groupedPanel}>
+        <Text style={styles.groupedPanelTitle}>Resultado estimado</Text>
         {payrollSummary.deductionRows.length === 0 ? (
           <Text style={styles.emptyText}>No hay deducciones configuradas.</Text>
         ) : (
@@ -134,8 +122,6 @@ export function SummaryScreen({ changeMonth, monthTitle, payrollSummary, styles,
             />
           ))
         )}
-        <View style={styles.summaryDivider} />
-        <SummaryRow styles={styles} label="Total deducciones" value={`-${formatCurrency(payrollSummary.totalDeductions)}`} />
         <SummaryRow styles={styles} label="Neto estimado" value={formatCurrency(payrollSummary.estimatedNetSalary)} />
       </View>
     </>

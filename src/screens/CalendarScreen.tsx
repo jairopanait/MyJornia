@@ -1,4 +1,5 @@
-import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
+import { useMemo } from 'react'
+import { ActivityIndicator, PanResponder, Pressable, Text, TextInput, View } from 'react-native'
 import { Pencil, Plus, Trash2 } from 'lucide-react-native'
 import { calendarViews, monthNames } from '../constants'
 import { ColorPicker } from '../components/ColorPicker'
@@ -96,9 +97,65 @@ export function CalendarScreen({
   styles,
   visibleHours,
 }: CalendarScreenProps) {
-  const monthTitle = `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`
   const calendarDays = buildCalendarDays(currentMonth, shifts)
   const weekDays = buildWeekDays(selectedDate, shifts)
+  const monthSwipeResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) > 24 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+        onPanResponderRelease: (_event, gesture) => {
+          if (gesture.dx < -42) {
+            changeMonth(1)
+          }
+
+          if (gesture.dx > 42) {
+            changeMonth(-1)
+          }
+        },
+      }),
+    [changeMonth],
+  )
+
+  function getReadableTextColor(hexColor: string) {
+    const cleanHex = hexColor.replace('#', '')
+    const red = Number.parseInt(cleanHex.slice(0, 2), 16)
+    const green = Number.parseInt(cleanHex.slice(2, 4), 16)
+    const blue = Number.parseInt(cleanHex.slice(4, 6), 16)
+    const brightness = red * 0.299 + green * 0.587 + blue * 0.114
+
+    return brightness > 170 ? '#111111' : '#FFFFFF'
+  }
+
+  function formatHoursBadge(hours: number) {
+    const wholeHours = Math.floor(hours)
+    const minutes = Math.round((hours - wholeHours) * 60)
+
+    if (minutes === 0) {
+      return `${wholeHours}h`
+    }
+
+    if (wholeHours === 0) {
+      return `${minutes}m`
+    }
+
+    return `${wholeHours}h${minutes}m`
+  }
+
+  function renderCalendarShiftPill(shift: WorkShift) {
+    const shiftColor = getShiftColor(shift)
+    const textColor = getReadableTextColor(shiftColor)
+
+    return (
+      <View key={shift.id} style={[styles.calendarShiftPill, { backgroundColor: shiftColor }]}>
+        <Text style={[styles.calendarShiftPillText, { color: textColor }]} numberOfLines={1}>
+          {getShiftTitle(shift)}
+        </Text>
+        <Text style={[styles.calendarShiftHoursText, { color: textColor }]} numberOfLines={1}>
+          {shift.is_time_off ? 'TD' : formatHoursBadge(getShiftHours(shift))}
+        </Text>
+      </View>
+    )
+  }
 
   function renderCalendarViewSelector() {
     return (
@@ -122,17 +179,7 @@ export function CalendarScreen({
 
   function renderMonthCalendar() {
     return (
-      <View style={styles.calendarPanel}>
-        <View style={styles.monthBar}>
-          <Pressable style={styles.iconButton} onPress={() => changeMonth(-1)}>
-            <Text style={styles.iconButtonText}>{'<'}</Text>
-          </Pressable>
-          <Text style={styles.monthTitle}>{monthTitle}</Text>
-          <Pressable style={styles.iconButton} onPress={() => changeMonth(1)}>
-            <Text style={styles.iconButtonText}>{'>'}</Text>
-          </Pressable>
-        </View>
-
+      <View style={styles.calendarPanel} {...monthSwipeResponder.panHandlers}>
         <View style={styles.weekHeader}>
           {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((weekday) => (
             <Text key={weekday} style={styles.weekdayText}>
@@ -158,14 +205,15 @@ export function CalendarScreen({
                 ]}
                 onPress={() => selectCalendarDate(day.dateKey)}
               >
-                <Text style={[styles.dayNumber, !day.inMonth && styles.dayNumberMuted, isSelected && styles.dayNumberSelected]}>
-                  {day.dayNumber}
-                </Text>
-                <View style={styles.shiftDots}>
-                  {isHoliday ? <View style={[styles.holidayDot, isSelected && { backgroundColor: '#FFFFFF' }]} /> : null}
-                  {day.shifts.slice(0, 3).map((shift) => (
-                    <View key={shift.id} style={[styles.shiftDot, { backgroundColor: getShiftColor(shift) }]} />
-                  ))}
+                <View style={styles.dayCellHeader}>
+                  <Text style={[styles.dayNumber, !day.inMonth && styles.dayNumberMuted, isSelected && styles.dayNumberSelected]}>
+                    {day.dayNumber}
+                  </Text>
+                  {isHoliday ? <Text style={[styles.calendarMoreText, isSelected && styles.dayNumberSelected]}>★</Text> : null}
+                </View>
+                <View style={styles.calendarShiftStack}>
+                  {day.shifts.slice(0, 2).map(renderCalendarShiftPill)}
+                  {day.shifts.length > 2 ? <Text style={styles.calendarMoreText}>+{day.shifts.length - 2}</Text> : null}
                 </View>
               </Pressable>
             )
@@ -228,7 +276,7 @@ export function CalendarScreen({
         </View>
         <Text style={styles.dayFocusText}>
           {isHoliday
-            ? 'Festivo según tus ajustes'
+            ? 'Festivo según tu configuración'
             : selectedDateShifts.length > 0
               ? `${selectedDateShifts.length} turno${selectedDateShifts.length === 1 ? '' : 's'} para este día`
               : 'Día libre o sin turnos guardados'}

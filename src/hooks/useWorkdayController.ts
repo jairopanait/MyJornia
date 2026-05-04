@@ -239,7 +239,7 @@ export function useWorkdayController(session: Session | null) {
 
     if (error) {
       setSavingWorkRules(false)
-      Alert.alert('No se pudieron guardar los ajustes', error.message)
+      Alert.alert('No se pudo guardar la nómina', error.message)
       return
     }
 
@@ -273,7 +273,7 @@ export function useWorkdayController(session: Session | null) {
     }
 
     setSavingWorkRules(false)
-    Alert.alert('Ajustes guardados', 'El resumen usará esta configuración.')
+    Alert.alert('Nómina guardada', 'El resumen usará esta configuración.')
   }
 
   function addNightRange() {

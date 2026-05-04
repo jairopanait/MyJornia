@@ -282,7 +282,7 @@ export function SettingsScreen({
         />
 
         <Pressable style={[styles.primaryButton, savingWorkRules && styles.disabledButton]} onPress={saveWorkRules} disabled={savingWorkRules}>
-          {savingWorkRules ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Guardar ajustes</Text>}
+          {savingWorkRules ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Guardar nómina</Text>}
         </Pressable>
       </View>
 

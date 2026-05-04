@@ -2,10 +2,19 @@ import type { CalendarViewMode, ShiftIconId, WorkRules } from './types'
 
 export const tabTitles = {
   summary: 'Resumen',
-  settings: 'Ajustes',
+  settings: 'Nómina',
   calendar: 'Calendario',
   shiftTypes: 'Turnos',
-  profile: 'Perfil',
+  profile: 'Más',
+}
+
+export const appInfo = {
+  brand: 'MyWorkday',
+  company: 'MyWorkday',
+  designer: 'Jairo Panait García',
+  madeIn: 'España',
+  version: '1.0.0',
+  year: '2026',
 }
 
 export const monthNames = [

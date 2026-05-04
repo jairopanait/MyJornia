@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from 'react'
 import { CalendarScreen } from '../screens/CalendarScreen'
 import { ProfileScreen } from '../screens/ProfileScreen'
 import { SettingsScreen } from '../screens/SettingsScreen'
@@ -5,15 +6,19 @@ import { ShiftTypesScreen } from '../screens/ShiftTypesScreen'
 import { SummaryScreen } from '../screens/SummaryScreen'
 import type { AppColors, AppStyles } from '../theme'
 import type { WorkdayController } from '../hooks/useWorkdayController'
+import type { ThemeMode } from '../types'
 
 type ActiveTabContentProps = {
   colors: AppColors
   controller: WorkdayController
+  handleSignOut: () => void
+  isDark: boolean
   sessionEmail?: string
+  setThemeMode: Dispatch<SetStateAction<ThemeMode>>
   styles: AppStyles
 }
 
-export function ActiveTabContent({ colors, controller, sessionEmail, styles }: ActiveTabContentProps) {
+export function ActiveTabContent({ colors, controller, handleSignOut, isDark, sessionEmail, setThemeMode, styles }: ActiveTabContentProps) {
   if (controller.activeTab === 'calendar') {
     return (
       <CalendarScreen
@@ -156,8 +161,11 @@ export function ActiveTabContent({ colors, controller, sessionEmail, styles }: A
       adminStats={controller.adminStats}
       greetingName={controller.greetingName}
       isAdmin={controller.isAdmin}
+      handleSignOut={handleSignOut}
+      isDark={isDark}
       loadAdminStats={controller.loadAdminStats}
       sessionEmail={sessionEmail}
+      setThemeMode={setThemeMode}
       styles={styles}
     />
   )

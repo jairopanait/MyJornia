@@ -1,22 +1,17 @@
-import { Pressable, View } from 'react-native'
-import { Briefcase, Coffee, Heart, Home, Moon, Plane, Star, Sun, Umbrella } from 'lucide-react-native'
-import type { ComponentType } from 'react'
-import type { SvgProps } from 'react-native-svg'
+import { Pressable, Text, View } from 'react-native'
 import type { AppColors, AppStyles } from '../theme'
 import type { ShiftIconId } from '../types'
 
-type LucideIcon = ComponentType<SvgProps & { color?: string; size?: number; strokeWidth?: number }>
-
-const shiftIcons: Record<ShiftIconId, LucideIcon> = {
-  briefcase: Briefcase,
-  sun: Sun,
-  moon: Moon,
-  coffee: Coffee,
-  umbrella: Umbrella,
-  star: Star,
-  home: Home,
-  heart: Heart,
-  plane: Plane,
+const shiftEmojis: Record<ShiftIconId, string> = {
+  briefcase: '💼',
+  sun: '🌤️',
+  moon: '🌙',
+  coffee: '☕️',
+  umbrella: '🏖️',
+  star: '🎉',
+  home: '🏠',
+  heart: '💋',
+  plane: '✈️',
 }
 
 export const shiftIconOptions: ShiftIconId[] = ['briefcase', 'sun', 'moon', 'coffee', 'umbrella', 'star', 'home', 'heart', 'plane']
@@ -27,9 +22,8 @@ type ShiftIconProps = {
   size?: number
 }
 
-export function ShiftIcon({ color, id = 'briefcase', size = 18 }: ShiftIconProps) {
-  const Icon = shiftIcons[id ?? 'briefcase'] ?? Briefcase
-  return <Icon color={color} size={size} strokeWidth={2.6} />
+export function ShiftIcon({ id = 'briefcase', size = 18 }: ShiftIconProps) {
+  return <Text style={{ fontSize: size, lineHeight: size + 3 }}>{shiftEmojis[id ?? 'briefcase'] ?? shiftEmojis.briefcase}</Text>
 }
 
 type ShiftIconPickerProps = {
@@ -39,7 +33,7 @@ type ShiftIconPickerProps = {
   value: ShiftIconId
 }
 
-export function ShiftIconPicker({ colors, onChange, styles, value }: ShiftIconPickerProps) {
+export function ShiftIconPicker({ onChange, styles, value }: ShiftIconPickerProps) {
   return (
     <View style={styles.iconPickerRow}>
       {shiftIconOptions.map((iconId) => {
@@ -47,7 +41,7 @@ export function ShiftIconPicker({ colors, onChange, styles, value }: ShiftIconPi
 
         return (
           <Pressable key={iconId} style={[styles.iconChoice, isSelected && styles.iconChoiceActive]} onPress={() => onChange(iconId)}>
-            <ShiftIcon color={isSelected ? '#FFFFFF' : colors.blue} id={iconId} size={18} />
+            <ShiftIcon color="#FFFFFF" id={iconId} size={21} />
           </Pressable>
         )
       })}

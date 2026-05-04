@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native'
 import { supabaseConfigError } from './lib/supabase'
 import { ActiveTabContent } from './src/components/ActiveTabContent'
 import { AppShell } from './src/components/AppShell'
-import { tabTitles } from './src/constants'
+import { monthNames, tabTitles } from './src/constants'
 import { useAuthController } from './src/hooks/useAuthController'
 import { useWorkdayController } from './src/hooks/useWorkdayController'
 import { AuthScreen } from './src/screens/AuthScreen'
@@ -20,7 +20,7 @@ export default function App() {
   const isDark = themeMode === 'dark'
   const colors = palettes[themeMode]
   const styles = useMemo(() => createStyles(colors), [colors])
-  const activeTabTitle = tabTitles[workday.activeTab]
+  const activeTabTitle = workday.activeTab === 'calendar' ? monthNames[workday.currentMonth.getMonth()] : tabTitles[workday.activeTab]
 
   if (auth.initializing) {
     return <LoadingScreen colors={colors} styles={styles} />
@@ -31,14 +31,20 @@ export default function App() {
       <AppShell
         activeTab={workday.activeTab}
         colors={colors}
-        handleSignOut={auth.handleSignOut}
         isDark={isDark}
         setActiveTab={workday.setActiveTab}
-        setThemeMode={setThemeMode}
         styles={styles}
         title={activeTabTitle}
       >
-        <ActiveTabContent colors={colors} controller={workday} sessionEmail={auth.session.user.email} styles={styles} />
+        <ActiveTabContent
+          colors={colors}
+          controller={workday}
+          handleSignOut={auth.handleSignOut}
+          isDark={isDark}
+          sessionEmail={auth.session.user.email}
+          setThemeMode={setThemeMode}
+          styles={styles}
+        />
       </AppShell>
     )
   }
@@ -51,7 +57,6 @@ export default function App() {
     <AuthScreen
       authMode={auth.authMode}
       cancelPasswordRecovery={auth.cancelPasswordRecovery}
-      colors={colors}
       confirmNewPassword={auth.confirmNewPassword}
       email={auth.email}
       fullName={auth.fullName}
@@ -70,7 +75,6 @@ export default function App() {
       setFullName={auth.setFullName}
       setNewPassword={auth.setNewPassword}
       setPassword={auth.setPassword}
-      setThemeMode={setThemeMode}
       styles={styles}
       updatingPassword={auth.updatingPassword}
     />
