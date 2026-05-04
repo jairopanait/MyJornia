@@ -108,6 +108,7 @@ export function ActiveTabContent({ colors, controller, sessionEmail, styles }: A
         additionAmount={controller.additionAmount}
         additionMode={controller.additionMode}
         additionName={controller.additionName}
+        additionShiftTypeIds={controller.additionShiftTypeIds}
         colors={colors}
         addLocalHoliday={controller.addLocalHoliday}
         addNightRange={controller.addNightRange}
@@ -133,6 +134,7 @@ export function ActiveTabContent({ colors, controller, sessionEmail, styles }: A
         setAdditionAmount={controller.setAdditionAmount}
         setAdditionMode={controller.setAdditionMode}
         setAdditionName={controller.setAdditionName}
+        setAdditionShiftTypeIds={controller.setAdditionShiftTypeIds}
         setDeductionName={controller.setDeductionName}
         setDeductionPercentage={controller.setDeductionPercentage}
         setLocalHolidayDateInput={controller.setLocalHolidayDateInput}
@@ -140,6 +142,8 @@ export function ActiveTabContent({ colors, controller, sessionEmail, styles }: A
         startEditAddition={controller.startEditAddition}
         startEditDeduction={controller.startEditDeduction}
         styles={styles}
+        shiftTypes={controller.shiftTypes}
+        toggleAdditionShiftType={controller.toggleAdditionShiftType}
         updateNightRange={controller.updateNightRange}
         workRules={controller.workRules}
       />

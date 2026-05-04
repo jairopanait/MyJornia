@@ -131,10 +131,16 @@ export function buildSummary(
       : holidayHours * Number(rules.holiday_hour_rate || 0)
   const additionRows = payrollAdditions.map((addition) => {
     const amount = Number(addition.amount || 0)
-    const quantity = addition.mode === 'per_shift' ? workedShifts.length : addition.mode === 'per_hour' ? totalHours : 1
+    const allowedShiftTypeIds = new Set(addition.shift_type_ids ?? [])
+    const applicableShifts =
+      allowedShiftTypeIds.size > 0 ? workedShifts.filter((shift) => shift.shift_type_id && allowedShiftTypeIds.has(shift.shift_type_id)) : workedShifts
+    const applicableHours = applicableShifts.reduce((total, shift) => total + getShiftHours(shift), 0)
+    const quantity = addition.mode === 'per_shift' ? applicableShifts.length : addition.mode === 'per_hour' ? applicableHours : 1
 
     return {
       ...addition,
+      applicableShiftCount: applicableShifts.length,
+      applicableHours,
       quantity,
       total: amount * quantity,
     }

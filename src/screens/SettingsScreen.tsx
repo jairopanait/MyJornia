@@ -13,6 +13,7 @@ type SettingsScreenProps = {
   additionAmount: string
   additionMode: PayrollAdditionMode
   additionName: string
+  additionShiftTypeIds: string[]
   addLocalHoliday: () => void
   addNightRange: () => void
   colors: AppColors
@@ -38,6 +39,7 @@ type SettingsScreenProps = {
   setAdditionAmount: (value: string) => void
   setAdditionMode: (value: PayrollAdditionMode) => void
   setAdditionName: (value: string) => void
+  setAdditionShiftTypeIds: (value: string[]) => void
   setDeductionName: (value: string) => void
   setDeductionPercentage: (value: string) => void
   setLocalHolidayDateInput: (value: string) => void
@@ -45,6 +47,8 @@ type SettingsScreenProps = {
   startEditAddition: (addition: PayrollAddition) => void
   startEditDeduction: (deduction: PayrollDeduction) => void
   styles: AppStyles
+  shiftTypes: { id: string; name: string; is_time_off: boolean | null }[]
+  toggleAdditionShiftType: (shiftTypeId: string) => void
   updateNightRange: (rangeId: string, patch: Partial<Pick<NightPayRange, 'end_time' | 'hour_rate' | 'start_time'>>) => void
   workRules: WorkRules
 }
@@ -53,6 +57,7 @@ export function SettingsScreen({
   additionAmount,
   additionMode,
   additionName,
+  additionShiftTypeIds,
   addLocalHoliday,
   addNightRange,
   colors,
@@ -78,6 +83,7 @@ export function SettingsScreen({
   setAdditionAmount,
   setAdditionMode,
   setAdditionName,
+  setAdditionShiftTypeIds,
   setDeductionName,
   setDeductionPercentage,
   setLocalHolidayDateInput,
@@ -85,6 +91,8 @@ export function SettingsScreen({
   startEditAddition,
   startEditDeduction,
   styles,
+  shiftTypes,
+  toggleAdditionShiftType,
   updateNightRange,
   workRules,
 }: SettingsScreenProps) {
@@ -96,6 +104,29 @@ export function SettingsScreen({
 
   function getAdditionModeLabel(mode: PayrollAdditionMode) {
     return additionModeOptions.find((option) => option.value === mode)?.label ?? 'Concepto'
+  }
+
+  function getAdditionShiftTypesLabel(addition: PayrollAddition) {
+    if (!addition.shift_type_ids || addition.shift_type_ids.length === 0) {
+      return 'Todos los turnos trabajados'
+    }
+
+    return addition.shift_type_ids
+      .map((shiftTypeId) => shiftTypes.find((shiftType) => shiftType.id === shiftTypeId)?.name)
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  function renderCheckRow(label: string, checked: boolean, onPress: () => void, detail?: string, key?: string) {
+    return (
+      <Pressable key={key ?? label} style={[styles.templateCard, checked && styles.dropdownItemActive]} onPress={onPress}>
+        <View style={styles.shiftInfo}>
+          <Text style={[styles.templateName, checked && styles.dropdownItemTextActive]}>{label}</Text>
+          {detail ? <Text style={[styles.shiftMeta, checked && styles.dropdownItemTextActive]}>{detail}</Text> : null}
+        </View>
+        <Text style={[styles.templateName, checked && styles.dropdownItemTextActive]}>{checked ? '✓' : ''}</Text>
+      </Pressable>
+    )
   }
 
   return (
@@ -280,6 +311,23 @@ export function SettingsScreen({
           styles={styles}
         />
 
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Turnos donde se aplica</Text>
+          <View style={styles.templateList}>
+            {renderCheckRow('Todos los turnos trabajados', additionShiftTypeIds.length === 0, () => setAdditionShiftTypeIds([]), 'Incluye turnos puntuales y turnos guardados', 'all')}
+            {shiftTypes.length === 0 ? <Text style={styles.emptyText}>Crea turnos personalizados para elegirlos aquí.</Text> : null}
+            {shiftTypes.map((shiftType) =>
+              renderCheckRow(
+                shiftType.name,
+                additionShiftTypeIds.includes(shiftType.id),
+                () => toggleAdditionShiftType(shiftType.id),
+                shiftType.is_time_off ? 'Sin horas: normalmente no cuenta como trabajado' : 'Turno personalizado',
+                shiftType.id,
+              ),
+            )}
+          </View>
+        </View>
+
         <Pressable style={[styles.primaryButton, savingAddition && styles.disabledButton]} onPress={saveAddition} disabled={savingAddition}>
           {savingAddition ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>{editingAdditionId ? 'Guardar concepto' : 'Añadir concepto'}</Text>}
         </Pressable>
@@ -292,6 +340,7 @@ export function SettingsScreen({
                 <Text style={styles.shiftMeta}>
                   {Number(addition.amount || 0).toFixed(2)} € · {getAdditionModeLabel(addition.mode)}
                 </Text>
+                <Text style={styles.shiftMeta}>{getAdditionShiftTypesLabel(addition)}</Text>
               </View>
               <View style={styles.rowActions}>
                 <Pressable style={styles.smallIconButton} onPress={() => startEditAddition(addition)}>

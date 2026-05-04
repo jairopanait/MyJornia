@@ -62,6 +62,7 @@ export type PayrollAddition = {
   name: string
   amount: number
   mode: PayrollAdditionMode
+  shift_type_ids: string[]
 }
 
 export type NightPayRange = {

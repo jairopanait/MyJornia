@@ -78,6 +78,7 @@ export function useWorkdayController(session: Session | null) {
   const [additionName, setAdditionName] = useState('Limpieza de ropa')
   const [additionAmount, setAdditionAmount] = useState('0')
   const [additionMode, setAdditionMode] = useState<PayrollAdditionMode>('per_shift')
+  const [additionShiftTypeIds, setAdditionShiftTypeIds] = useState<string[]>([])
   const [localHolidayDateInput, setLocalHolidayDateInput] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
   const [adminStats, setAdminStats] = useState<AdminStats | null>(null)
@@ -319,18 +320,29 @@ export function useWorkdayController(session: Session | null) {
       return
     }
 
-    const { data, error } = await supabase
+    const { data: additionsData, error: additionsError } = await supabase
       .from('payroll_additions')
       .select('*')
       .eq('user_id', session.user.id)
       .order('created_at', { ascending: true })
 
-    if (error) {
+    if (additionsError) {
       setPayrollAdditions([])
       return
     }
 
-    setPayrollAdditions((data ?? []) as PayrollAddition[])
+    const { data: linksData, error: linksError } = await supabase
+      .from('payroll_addition_shift_types')
+      .select('addition_id, shift_type_id')
+      .eq('user_id', session.user.id)
+
+    const links = linksError ? [] : ((linksData ?? []) as { addition_id: string; shift_type_id: string }[])
+    const additions = ((additionsData ?? []) as Omit<PayrollAddition, 'shift_type_ids'>[]).map((addition) => ({
+      ...addition,
+      shift_type_ids: links.filter((link) => link.addition_id === addition.id).map((link) => link.shift_type_id),
+    }))
+
+    setPayrollAdditions(additions)
   }
 
   async function saveAddition() {
@@ -370,7 +382,29 @@ export function useWorkdayController(session: Session | null) {
       return
     }
 
-    const savedAddition = data as PayrollAddition
+    const savedAddition = { ...(data as Omit<PayrollAddition, 'shift_type_ids'>), shift_type_ids: additionShiftTypeIds }
+    const deleteLinksResult = await supabase.from('payroll_addition_shift_types').delete().eq('addition_id', savedAddition.id).eq('user_id', session.user.id)
+
+    if (deleteLinksResult.error) {
+      Alert.alert('Falta actualizar la base de datos', 'Ejecuta la migración de turnos aplicables para pagas extra en Supabase.')
+      return
+    }
+
+    if (additionShiftTypeIds.length > 0) {
+      const { error: insertLinksError } = await supabase.from('payroll_addition_shift_types').insert(
+        additionShiftTypeIds.map((shiftTypeId) => ({
+          user_id: session.user.id,
+          addition_id: savedAddition.id,
+          shift_type_id: shiftTypeId,
+        })),
+      )
+
+      if (insertLinksError) {
+        Alert.alert('No se pudieron guardar los turnos aplicables', insertLinksError.message)
+        return
+      }
+    }
+
     setPayrollAdditions((currentAdditions) => {
       if (editingAdditionId) {
         return currentAdditions.map((addition) => (addition.id === editingAdditionId ? savedAddition : addition))
@@ -382,6 +416,7 @@ export function useWorkdayController(session: Session | null) {
     setAdditionName('Limpieza de ropa')
     setAdditionAmount('0')
     setAdditionMode('per_shift')
+    setAdditionShiftTypeIds([])
   }
 
   function startEditAddition(addition: PayrollAddition) {
@@ -389,6 +424,13 @@ export function useWorkdayController(session: Session | null) {
     setAdditionName(addition.name)
     setAdditionAmount(formatNumber(Number(addition.amount || 0)))
     setAdditionMode(addition.mode)
+    setAdditionShiftTypeIds(addition.shift_type_ids ?? [])
+  }
+
+  function toggleAdditionShiftType(shiftTypeId: string) {
+    setAdditionShiftTypeIds((currentIds) =>
+      currentIds.includes(shiftTypeId) ? currentIds.filter((currentId) => currentId !== shiftTypeId) : [...currentIds, shiftTypeId],
+    )
   }
 
   async function deleteAddition(additionId: string) {
@@ -812,6 +854,7 @@ export function useWorkdayController(session: Session | null) {
     additionAmount,
     additionMode,
     additionName,
+    additionShiftTypeIds,
     addLocalHoliday,
     addNightRange,
     adminLoading,
@@ -863,6 +906,7 @@ export function useWorkdayController(session: Session | null) {
     setAdditionAmount,
     setAdditionMode,
     setAdditionName,
+    setAdditionShiftTypeIds,
     setBreakMinutes,
     setCalendarView,
     setCurrentMonth,
@@ -906,6 +950,7 @@ export function useWorkdayController(session: Session | null) {
     templateIsTimeOff,
     templateName,
     templateStart,
+    toggleAdditionShiftType,
     updateNightRange,
     visibleHours,
     workRules,
