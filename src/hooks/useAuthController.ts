@@ -3,6 +3,14 @@ import { Alert } from 'react-native'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, supabaseConfigError } from '../../lib/supabase'
 
+function isStrongPassword(password: string) {
+  const hasMinimumLength = password.length >= 8
+  const hasNumber = /\d/.test(password)
+  const hasSymbol = /[^A-Za-z0-9]/.test(password)
+
+  return hasMinimumLength && hasNumber && hasSymbol
+}
+
 export function useAuthController() {
   const [session, setSession] = useState<Session | null>(null)
   const [initializing, setInitializing] = useState(true)
@@ -11,6 +19,7 @@ export function useAuthController() {
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
 
   useEffect(() => {
     if (!supabase) {
@@ -78,8 +87,8 @@ export function useAuthController() {
       return
     }
 
-    if (password.length < 6) {
-      Alert.alert('Contraseña corta', 'La contraseña debe tener al menos 6 caracteres.')
+    if (authMode === 'register' && !isStrongPassword(password)) {
+      Alert.alert('Contraseña poco segura', 'Debe tener al menos 8 caracteres, un número y un símbolo.')
       return
     }
 
@@ -111,6 +120,31 @@ export function useAuthController() {
     }
   }
 
+  async function handlePasswordReset() {
+    if (!supabase) {
+      Alert.alert('Falta configuración', supabaseConfigError ?? 'No se pudo conectar con Supabase.')
+      return
+    }
+
+    const cleanEmail = email.trim().toLowerCase()
+
+    if (!cleanEmail) {
+      Alert.alert('Falta correo', 'Introduce tu correo para enviarte la recuperación de contraseña.')
+      return
+    }
+
+    setResetLoading(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail)
+    setResetLoading(false)
+
+    if (error) {
+      Alert.alert('No se pudo enviar el correo', error.message)
+      return
+    }
+
+    Alert.alert('Correo enviado', 'Revisa tu email para recuperar la contraseña.')
+  }
+
   async function handleSignOut() {
     if (!supabase) {
       return
@@ -123,11 +157,13 @@ export function useAuthController() {
     authMode,
     email,
     fullName,
+    handlePasswordReset,
     handleSignOut,
     handleSubmit,
     initializing,
     loading,
     password,
+    resetLoading,
     session,
     setAuthMode,
     setEmail,

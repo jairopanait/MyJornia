@@ -139,6 +139,28 @@ export const createStyles = (colors: AppColors) =>
       marginBottom: 18,
       textAlign: 'center',
     },
+    authLinkButton: {
+      alignSelf: 'center',
+      marginBottom: 10,
+      marginTop: -4,
+      paddingHorizontal: 8,
+      paddingVertical: 6,
+    },
+    authLinkText: {
+      color: colors.blue,
+      fontSize: 14,
+      fontWeight: '900',
+      textAlign: 'center',
+    },
+    passwordHint: {
+      color: colors.muted,
+      fontSize: 13,
+      fontWeight: '700',
+      lineHeight: 18,
+      marginBottom: 10,
+      marginTop: -4,
+      textAlign: 'center',
+    },
     appScreen: {
       flex: 1,
       backgroundColor: colors.background,

@@ -9,10 +9,12 @@ type AuthScreenProps = {
   colors: AppColors
   email: string
   fullName: string
+  handlePasswordReset: () => void
   handleSubmit: () => void
   isDark: boolean
   loading: boolean
   password: string
+  resetLoading: boolean
   setAuthMode: Dispatch<SetStateAction<'login' | 'register'>>
   setEmail: (value: string) => void
   setFullName: (value: string) => void
@@ -26,10 +28,12 @@ export function AuthScreen({
   colors,
   email,
   fullName,
+  handlePasswordReset,
   handleSubmit,
   isDark,
   loading,
   password,
+  resetLoading,
   setAuthMode,
   setEmail,
   setFullName,
@@ -97,12 +101,20 @@ export function AuthScreen({
               <TextInput
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Mínimo 6 caracteres"
+                placeholder={isRegistering ? 'Mínimo 8, número y símbolo' : 'Tu contraseña'}
                 placeholderTextColor="#94A3B8"
                 secureTextEntry
                 style={styles.input}
               />
             </View>
+
+            {!isRegistering ? (
+              <Pressable style={styles.authLinkButton} onPress={handlePasswordReset} disabled={resetLoading}>
+                <Text style={styles.authLinkText}>{resetLoading ? 'Enviando correo...' : '¿Olvidaste tu contraseña?'}</Text>
+              </Pressable>
+            ) : (
+              <Text style={styles.passwordHint}>Debe tener mínimo 8 caracteres, un número y un símbolo.</Text>
+            )}
 
             <Pressable style={[styles.primaryButton, loading && styles.disabledButton]} onPress={handleSubmit} disabled={loading}>
               {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>{title}</Text>}

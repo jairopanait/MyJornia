@@ -53,10 +53,12 @@ export default function App() {
       colors={colors}
       email={auth.email}
       fullName={auth.fullName}
+      handlePasswordReset={auth.handlePasswordReset}
       handleSubmit={auth.handleSubmit}
       isDark={isDark}
       loading={auth.loading}
       password={auth.password}
+      resetLoading={auth.resetLoading}
       setAuthMode={auth.setAuthMode}
       setEmail={auth.setEmail}
       setFullName={auth.setFullName}
