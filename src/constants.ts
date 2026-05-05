@@ -18,8 +18,8 @@ export const appInfo = {
 }
 
 export const legalUrls = {
-  privacyPolicy: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || 'https://myjornia.app/privacidad/',
-  accountDeletion: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL || 'https://myjornia.app/eliminar-cuenta/',
+  privacyPolicy: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || 'https://jairopanait.github.io/MyJornia/privacidad/',
+  accountDeletion: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL || 'https://jairopanait.github.io/MyJornia/eliminar-cuenta/',
 }
 
 export const monthNames = [

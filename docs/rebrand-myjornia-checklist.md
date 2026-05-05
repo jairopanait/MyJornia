@@ -38,7 +38,7 @@ https://jairopanait.github.io/MyJornia/privacidad/
 https://jairopanait.github.io/MyJornia/eliminar-cuenta/
 ```
 
-URLs finales con dominio propio:
+URLs finales con dominio propio, solo si decides comprarlo mas adelante:
 
 ```txt
 https://myjornia.app/privacidad/
@@ -57,13 +57,15 @@ A      @      185.199.111.153
 CNAME  www    jairopanait.github.io
 ```
 
-En GitHub Pages, el dominio personalizado debe ser:
+Si usas dominio propio, en GitHub Pages el dominio personalizado debe ser:
 
 ```txt
 myjornia.app
 ```
 
 Despues activa `Enforce HTTPS`.
+
+Si usas la URL gratuita de GitHub Pages, no crees `docs/CNAME` y deja vacio el campo de dominio personalizado.
 
 ## 3. Supabase
 
@@ -75,9 +77,9 @@ En Supabase Dashboard:
 
 ```txt
 myjornia://password-reset
-https://myjornia.app
-https://myjornia.app/privacidad/
-https://myjornia.app/eliminar-cuenta/
+https://jairopanait.github.io/MyJornia
+https://jairopanait.github.io/MyJornia/privacidad/
+https://jairopanait.github.io/MyJornia/eliminar-cuenta/
 ```
 
 4. Si tienes todavia redirects antiguos de MyWorkday, eliminalos cuando hayas probado el nuevo enlace.
@@ -88,8 +90,8 @@ Tu `.env` debe tener:
 
 ```txt
 EXPO_PUBLIC_PASSWORD_RESET_REDIRECT_URL=myjornia://password-reset
-EXPO_PUBLIC_PRIVACY_POLICY_URL=https://myjornia.app/privacidad/
-EXPO_PUBLIC_ACCOUNT_DELETION_URL=https://myjornia.app/eliminar-cuenta/
+EXPO_PUBLIC_PRIVACY_POLICY_URL=https://jairopanait.github.io/MyJornia/privacidad/
+EXPO_PUBLIC_ACCOUNT_DELETION_URL=https://jairopanait.github.io/MyJornia/eliminar-cuenta/
 ```
 
 ### Base de datos

@@ -9,7 +9,7 @@ Si activas GitHub Pages desde la carpeta `docs`, las rutas seran:
 - `https://jairopanait.github.io/MyJornia/privacidad/`
 - `https://jairopanait.github.io/MyJornia/eliminar-cuenta/`
 
-Con un dominio propio configurado, quedarian asi:
+Si mas adelante compras un dominio propio, podrian quedar asi:
 
 - `https://myjornia.app/privacidad/`
 - `https://myjornia.app/eliminar-cuenta/`
@@ -26,7 +26,7 @@ Con un dominio propio configurado, quedarian asi:
 
 ## Dominio propio
 
-Cuando compres o configures `myjornia.app`, ya tienes un archivo `CNAME` dentro de `docs` con este contenido:
+Cuando compres o configures `myjornia.app`, crea un archivo `CNAME` dentro de `docs` con este contenido:
 
 ```txt
 myjornia.app
