@@ -83,7 +83,7 @@ Puedes solicitar:
 - Limitacion u oposicion al tratamiento cuando proceda.
 - Portabilidad de los datos cuando sea aplicable.
 
-Para ejercer estos derechos, escribe a soporte@myjornia.app indicando el correo asociado a tu cuenta.
+Para ejercer estos derechos, puedes usar la opcion de eliminar cuenta dentro de la app o escribir a soporte@myjornia.app indicando el correo asociado a tu cuenta.
 
 Si consideras que no se han atendido correctamente tus derechos, puedes reclamar ante la Agencia Espanola de Proteccion de Datos: https://www.aepd.es
 

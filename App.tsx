@@ -62,6 +62,8 @@ export default function App() {
         <ActiveTabContent
           colors={colors}
           controller={jornia}
+          deletingAccount={auth.deletingAccount}
+          handleDeleteAccount={auth.handleDeleteAccount}
           handleSignOut={auth.handleSignOut}
           isDark={isDark}
           mfa={mfa}

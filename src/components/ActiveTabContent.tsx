@@ -13,6 +13,8 @@ import type { ThemeMode } from '../types'
 type ActiveTabContentProps = {
   colors: AppColors
   controller: JorniaController
+  deletingAccount: boolean
+  handleDeleteAccount: () => void
   handleSignOut: () => void
   isDark: boolean
   mfa: MfaController
@@ -25,6 +27,8 @@ type ActiveTabContentProps = {
 export function ActiveTabContent({
   colors,
   controller,
+  deletingAccount,
+  handleDeleteAccount,
   handleSignOut,
   isDark,
   mfa,
@@ -173,8 +177,10 @@ export function ActiveTabContent({
     <ProfileScreen
       adminLoading={controller.adminLoading}
       adminStats={controller.adminStats}
+      deletingAccount={deletingAccount}
       greetingName={controller.greetingName}
       isAdmin={controller.isAdmin}
+      handleDeleteAccount={handleDeleteAccount}
       handleSignOut={handleSignOut}
       isDark={isDark}
       loadAdminStats={controller.loadAdminStats}

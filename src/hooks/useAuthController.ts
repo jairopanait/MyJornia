@@ -30,6 +30,7 @@ export function useAuthController() {
   const [loading, setLoading] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
   const [updatingPassword, setUpdatingPassword] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
   const [passwordRecoveryMode, setPasswordRecoveryMode] = useState(false)
 
   useEffect(() => {
@@ -174,12 +175,20 @@ export function useAuthController() {
     setLoading(false)
 
     if (response.error) {
-      Alert.alert('No se pudo continuar', response.error.message)
+      Alert.alert(
+        'No se pudo continuar',
+        authMode === 'register'
+          ? `${response.error.message}\n\nSi este correo ya está registrado, inicia sesión o recupera tu contraseña.`
+          : response.error.message,
+      )
       return
     }
 
     if (authMode === 'register' && !response.data.session) {
-      Alert.alert('Revisa tu correo', 'Supabase te ha enviado un correo para confirmar tu cuenta.')
+      Alert.alert(
+        'Revisa tu correo',
+        'Si el registro es nuevo, te hemos enviado un correo para confirmar tu cuenta. Si este correo ya estaba registrado, inicia sesión o recupera tu contraseña.',
+      )
     }
   }
 
@@ -257,12 +266,68 @@ export function useAuthController() {
     await supabase.auth.signOut()
   }
 
+  function handleDeleteAccount() {
+    Alert.alert(
+      'Eliminar cuenta',
+      'Se borrarán tu usuario, turnos, plantillas, ajustes de nómina, festivos y datos asociados. Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Continuar',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert('Confirmación final', '¿Seguro que quieres eliminar definitivamente tu cuenta de MyJornia?', [
+              { text: 'No eliminar', style: 'cancel' },
+              {
+                text: 'Eliminar definitivamente',
+                style: 'destructive',
+                onPress: () => {
+                  void deleteAccount()
+                },
+              },
+            ])
+          },
+        },
+      ],
+    )
+  }
+
+  async function deleteAccount() {
+    if (!supabase) {
+      Alert.alert('Falta configuración', supabaseConfigError ?? 'No se pudo conectar con Supabase.')
+      return
+    }
+
+    setDeletingAccount(true)
+    const { error } = await supabase.rpc('delete_my_account')
+
+    if (error) {
+      setDeletingAccount(false)
+      const needsSql = error.message.toLowerCase().includes('delete_my_account') || error.message.toLowerCase().includes('function')
+      Alert.alert(
+        needsSql ? 'Falta activar la eliminación' : 'No se pudo eliminar la cuenta',
+        needsSql ? 'Ejecuta primero el archivo supabase-delete-account.sql en Supabase SQL Editor.' : error.message,
+      )
+      return
+    }
+
+    await supabase.auth.signOut({ scope: 'local' })
+    setDeletingAccount(false)
+    setSession(null)
+    setEmail('')
+    setPassword('')
+    setFullName('')
+    Alert.alert('Cuenta eliminada', 'Tu cuenta y tus datos asociados se han eliminado.')
+  }
+
   return {
     authMode,
     cancelPasswordRecovery,
     confirmNewPassword,
+    deletingAccount,
     email,
     fullName,
+    handleDeleteAccount,
     handlePasswordReset,
     handleSignOut,
     handleSubmit,

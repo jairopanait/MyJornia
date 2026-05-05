@@ -11,7 +11,9 @@ const supportEmail = 'soporte@myjornia.app'
 type ProfileScreenProps = {
   adminLoading: boolean
   adminStats: AdminStats | null
+  deletingAccount: boolean
   greetingName: string
+  handleDeleteAccount: () => void
   handleSignOut: () => void
   isAdmin: boolean
   isDark: boolean
@@ -50,7 +52,9 @@ function MenuRow({ detail, isLast = false, onPress, styles, title, value }: Menu
 export function ProfileScreen({
   adminLoading,
   adminStats,
+  deletingAccount,
   greetingName,
+  handleDeleteAccount,
   handleSignOut,
   isAdmin,
   isDark,
@@ -67,10 +71,6 @@ export function ProfileScreen({
 
   const openPrivacyPolicy = () => {
     void Linking.openURL(legalUrls.privacyPolicy)
-  }
-
-  const requestAccountDeletion = () => {
-    void Linking.openURL(legalUrls.accountDeletion)
   }
 
   return (
@@ -155,8 +155,7 @@ export function ProfileScreen({
       <Text style={styles.sectionTitle}>Ayuda</Text>
       <View style={styles.groupedPanel}>
         <MenuRow styles={styles} title="Soporte" detail={supportEmail} onPress={openSupportEmail} />
-        <MenuRow styles={styles} title="Política de privacidad" detail={legalUrls.privacyPolicy} onPress={openPrivacyPolicy} />
-        <MenuRow styles={styles} title="Eliminar cuenta y datos" detail={legalUrls.accountDeletion} onPress={requestAccountDeletion} isLast />
+        <MenuRow styles={styles} title="Política de privacidad" detail={legalUrls.privacyPolicy} onPress={openPrivacyPolicy} isLast />
       </View>
 
       {isAdmin ? (
@@ -191,6 +190,14 @@ export function ProfileScreen({
         {'\n'}
         {appInfo.designer}
       </Text>
+
+      <View style={styles.dangerPanel}>
+        <Text style={styles.dangerTitle}>Eliminar cuenta</Text>
+        <Text style={styles.dangerText}>Borra definitivamente tu cuenta, turnos, plantillas, nómina y datos asociados.</Text>
+        <Pressable style={[styles.dangerButton, deletingAccount && styles.disabledButton]} onPress={handleDeleteAccount} disabled={deletingAccount}>
+          {deletingAccount ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.dangerButtonText}>Eliminar cuenta definitivamente</Text>}
+        </Pressable>
+      </View>
     </>
   )
 }
