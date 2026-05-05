@@ -14,6 +14,8 @@ type TotpEnrollment = {
   uri: string
 }
 
+const mfaInitTimeoutMs = 8000
+
 export type MfaController = {
   beginEnrollment: () => Promise<void>
   cancelEnrollment: () => Promise<void>
@@ -38,6 +40,23 @@ function cleanOtpCode(value: string) {
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'No se pudo completar la operación.'
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Tiempo de espera agotado.')), timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
 }
 
 export function useMfaController(session: Session | null): MfaController {
@@ -70,10 +89,10 @@ export function useMfaController(session: Session | null): MfaController {
     setInitializing(true)
 
     try {
-      const [{ data: factorsData, error: factorsError }, { data: aalData, error: aalError }] = await Promise.all([
-        supabase.auth.mfa.listFactors(),
-        supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
-      ])
+      const [{ data: factorsData, error: factorsError }, { data: aalData, error: aalError }] = await withTimeout(
+        Promise.all([supabase.auth.mfa.listFactors(), supabase.auth.mfa.getAuthenticatorAssuranceLevel()]),
+        mfaInitTimeoutMs,
+      )
 
       if (factorsError) {
         throw factorsError

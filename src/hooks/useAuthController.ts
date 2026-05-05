@@ -4,6 +4,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase, supabaseConfigError } from '../../lib/supabase'
 
 const passwordResetRedirectUrl = process.env.EXPO_PUBLIC_PASSWORD_RESET_REDIRECT_URL || 'myjornia://password-reset'
+const authInitTimeoutMs = 8000
 
 function isStrongPassword(password: string) {
   const hasMinimumLength = password.length >= 8
@@ -39,10 +40,31 @@ export function useAuthController() {
       return
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setInitializing(false)
-    })
+    let mounted = true
+    const fallbackTimer = setTimeout(() => {
+      if (mounted) {
+        setInitializing(false)
+      }
+    }, authInitTimeoutMs)
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (mounted) {
+          setSession(data.session)
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setSession(null)
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          clearTimeout(fallbackTimer)
+          setInitializing(false)
+        }
+      })
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession)
@@ -66,6 +88,8 @@ export function useAuthController() {
     })
 
     return () => {
+      mounted = false
+      clearTimeout(fallbackTimer)
       listener.subscription.unsubscribe()
       linkingSubscription.remove()
     }

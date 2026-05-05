@@ -5,10 +5,28 @@ import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 
 const appLockStorageKey = 'myjornia:app-lock-enabled'
+const securityInitTimeoutMs = 6500
 
 type DeviceSecurityStatus = {
   available: boolean
   label: string
+}
+
+async function withTimeout<T>(promise: Promise<T>, fallback: T) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timeoutId = setTimeout(() => resolve(fallback), securityInitTimeoutMs)
+      }),
+    ])
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
 }
 
 export type SecurityController = {
@@ -162,7 +180,10 @@ export function useSecurityController(session: Session | null): SecurityControll
     let mounted = true
 
     async function loadSecuritySettings() {
-      const [storedValue, deviceSecurity] = await Promise.all([getStoredAppLockSetting(), refreshDeviceSecurity()])
+      const [storedValue, deviceSecurity] = await withTimeout(
+        Promise.all([getStoredAppLockSetting(), refreshDeviceSecurity()]),
+        [null, { available: false, label: 'bloqueo del móvil' }] as const,
+      )
 
       if (!mounted) {
         return

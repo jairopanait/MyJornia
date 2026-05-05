@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 import { supabaseConfigError } from './lib/supabase'
 import { ActiveTabContent } from './src/components/ActiveTabContent'
@@ -19,6 +19,7 @@ import type { ThemeMode } from './src/types'
 export default function App() {
   const systemScheme = useColorScheme()
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => (systemScheme === 'dark' ? 'dark' : 'light'))
+  const [bootTimeoutReached, setBootTimeoutReached] = useState(false)
   const auth = useAuthController()
   const securedSession = auth.passwordRecoveryMode ? null : auth.session
   const mfa = useMfaController(securedSession)
@@ -29,7 +30,17 @@ export default function App() {
   const styles = useMemo(() => createStyles(colors), [colors])
   const activeTabTitle = jornia.activeTab === 'calendar' ? monthNames[jornia.currentMonth.getMonth()] : tabTitles[jornia.activeTab]
 
-  if (auth.initializing || mfa.initializing || security.initializing) {
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setBootTimeoutReached(true)
+    }, 10000)
+
+    return () => {
+      clearTimeout(timeoutId)
+    }
+  }, [])
+
+  if ((auth.initializing || mfa.initializing || security.initializing) && !bootTimeoutReached) {
     return <LoadingScreen colors={colors} styles={styles} />
   }
 
