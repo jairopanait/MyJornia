@@ -1,4 +1,4 @@
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native'
+﻿import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import type { Dispatch, SetStateAction } from 'react'
 import type { AppStyles } from '../theme'
@@ -102,7 +102,7 @@ export function AuthScreen({
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.keyboardView}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.brandBlock}>
-            <Text style={styles.logo}>MyWorkday</Text>
+            <Text style={styles.logo}>MyJornia</Text>
             <Text style={styles.headline}>Organiza tus turnos sin perder la cuenta de tus horas.</Text>
           </View>
 

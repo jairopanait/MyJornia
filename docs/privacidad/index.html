@@ -1,0 +1,142 @@
+﻿<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Politica de privacidad - MyJornia</title>
+    <meta name="description" content="Politica de privacidad de MyJornia para App Store y Google Play.">
+    <link rel="stylesheet" href="../assets/site.css">
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <a class="brand" href="../">MyJornia</a>
+        <nav class="nav" aria-label="Paginas legales">
+          <a href="../privacidad/">Privacidad</a>
+          <a href="../eliminar-cuenta/">Eliminar cuenta</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Ultima actualizacion: 5 de mayo de 2026</p>
+        <h1>Politica de privacidad</h1>
+        <p class="intro">
+          Esta politica explica como MyJornia trata los datos personales de las personas que usan la aplicacion.
+        </p>
+      </section>
+
+      <section class="summary" aria-label="Resumen de privacidad">
+        <div class="summary-item">
+          <strong>No vendemos datos</strong>
+          <span>MyJornia no vende datos personales ni usa seguimiento publicitario.</span>
+        </div>
+        <div class="summary-item">
+          <strong>Datos laborales protegidos</strong>
+          <span>Los turnos, notas y resumen salarial se tratan como informacion sensible por contexto.</span>
+        </div>
+        <div class="summary-item">
+          <strong>Seguridad de cuenta</strong>
+          <span>La app puede usar doble factor, bloqueo local y almacenamiento seguro de sesion.</span>
+        </div>
+        <div class="summary-item">
+          <strong>Derechos RGPD</strong>
+          <span>Puedes solicitar acceso, rectificacion, eliminacion, oposicion, limitacion y portabilidad.</span>
+        </div>
+      </section>
+
+      <article class="card">
+        <h2>1. Responsable del tratamiento</h2>
+        <p>Aplicacion: MyJornia.</p>
+        <p>Responsable: MyJornia / Jairo Panait Garcia.</p>
+        <p>Contacto de privacidad: <a href="mailto:soporte@myjornia.app">soporte@myjornia.app</a>.</p>
+        <p>Pais de desarrollo: Espana.</p>
+        <p>Domicilio o datos fiscales: pendiente de completar antes de publicar.</p>
+      </article>
+
+      <article class="card">
+        <h2>2. Datos que tratamos</h2>
+        <ul>
+          <li>Datos de cuenta: correo electronico, identificador de usuario y nombre si la persona lo indica.</li>
+          <li>Datos de autenticacion: contrasena gestionada por Supabase Auth, tokens de sesion y configuracion de doble factor.</li>
+          <li>Datos laborales introducidos por la persona usuaria: turnos, horarios, descansos, notas, colores, iconos, vacaciones, dias libres y plantillas.</li>
+          <li>Datos economicos configurados por la persona usuaria: salario base, horas de contrato, importes de horas extra o complementarias, nocturnidad, festivos, deducciones y conceptos adicionales.</li>
+          <li>Preferencias: tema claro u oscuro, comunidad autonoma, festivos locales, idioma y futuras preferencias de widgets.</li>
+          <li>Datos de soporte: mensajes enviados al correo de soporte y la informacion incluida voluntariamente en esos mensajes.</li>
+        </ul>
+        <p>MyJornia no vende datos personales, no muestra publicidad y no usa los datos para seguimiento publicitario.</p>
+      </article>
+
+      <article class="card">
+        <h2>3. Finalidades</h2>
+        <ul>
+          <li>Crear y mantener la cuenta de usuario.</li>
+          <li>Permitir acceso seguro mediante correo, contrasena, doble factor y bloqueo local de la app.</li>
+          <li>Guardar y mostrar turnos, calendario laboral y plantillas.</li>
+          <li>Calcular resumen de horas y estimaciones salariales configuradas por la persona usuaria.</li>
+          <li>Mostrar festivos nacionales, autonomicos y locales configurados.</li>
+          <li>Atender solicitudes de soporte, errores, dudas o eliminacion de cuenta.</li>
+          <li>Mantener la seguridad, prevenir abusos y proteger la integridad del servicio.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>4. Base juridica</h2>
+        <ul>
+          <li>Ejecucion de un contrato o servicio solicitado por la persona usuaria.</li>
+          <li>Consentimiento para datos introducidos voluntariamente, como notas o configuraciones opcionales.</li>
+          <li>Interes legitimo en mantener la seguridad de la aplicacion y prevenir usos indebidos.</li>
+          <li>Cumplimiento de obligaciones legales cuando corresponda.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>5. Encargados y servicios de terceros</h2>
+        <p>MyJornia usa Supabase como proveedor de autenticacion, base de datos y almacenamiento de sesion del servicio.</p>
+        <p>Tambien pueden intervenir Apple y Google cuando la app se descarga desde App Store o Google Play, de acuerdo con sus propias politicas.</p>
+        <p>Si se anaden servicios como analitica, crash reporting, notificaciones push o actualizaciones OTA, esta politica se actualizara.</p>
+      </article>
+
+      <article class="card">
+        <h2>6. Conservacion</h2>
+        <p>Los datos de cuenta y calendario se conservaran mientras la cuenta este activa.</p>
+        <p>Si la persona usuaria solicita la eliminacion de su cuenta, se eliminaran o anonimizaran los datos asociados salvo que exista una obligacion legal de conservarlos durante mas tiempo.</p>
+        <p>Los correos de soporte se conservaran el tiempo necesario para atender la solicitud y documentar incidencias.</p>
+      </article>
+
+      <article class="card">
+        <h2>7. Seguridad</h2>
+        <ul>
+          <li>Row Level Security en Supabase para separar los datos por usuario.</li>
+          <li>Sesion guardada en Keychain o Keystore mediante Expo SecureStore cuando esta disponible.</li>
+          <li>Doble factor TOTP opcional.</li>
+          <li>Bloqueo local opcional mediante Face ID, huella o bloqueo seguro del dispositivo.</li>
+          <li>Uso exclusivo de clave publica de Supabase en la app movil.</li>
+          <li>No uso de claves secretas o service role en el cliente.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>8. Derechos de las personas usuarias</h2>
+        <p>Puedes solicitar acceso, rectificacion, eliminacion, limitacion, oposicion o portabilidad escribiendo a <a href="mailto:soporte@myjornia.app">soporte@myjornia.app</a>.</p>
+        <p>Si consideras que no se han atendido correctamente tus derechos, puedes reclamar ante la Agencia Espanola de Proteccion de Datos: <a href="https://www.aepd.es">https://www.aepd.es</a>.</p>
+      </article>
+
+      <article class="card">
+        <h2>9. Menores</h2>
+        <p>MyJornia no esta dirigida a menores de 14 anos. Si detectamos una cuenta creada por una persona menor sin autorizacion suficiente, podremos eliminarla.</p>
+      </article>
+
+      <article class="card">
+        <h2>10. Transferencias internacionales</h2>
+        <p>Los datos pueden tratarse en servidores ubicados fuera de Espana o del Espacio Economico Europeo si el proveedor elegido lo requiere. En ese caso se usaran garantias adecuadas, como clausulas contractuales tipo u otros mecanismos reconocidos por la normativa aplicable.</p>
+      </article>
+
+      <article class="card">
+        <h2>11. Cambios</h2>
+        <p>Podremos actualizar esta politica si cambian la app, los proveedores o la normativa. La fecha de ultima actualizacion indicara la version vigente.</p>
+      </article>
+
+      <p class="footer">MyJornia - Espana - Version 1.0.0</p>
+    </main>
+  </body>
+</html>

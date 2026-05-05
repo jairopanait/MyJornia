@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 import { supabaseConfigError } from './lib/supabase'
 import { ActiveTabContent } from './src/components/ActiveTabContent'
@@ -7,7 +7,7 @@ import { monthNames, tabTitles } from './src/constants'
 import { useAuthController } from './src/hooks/useAuthController'
 import { useMfaController } from './src/hooks/useMfaController'
 import { useSecurityController } from './src/hooks/useSecurityController'
-import { useWorkdayController } from './src/hooks/useWorkdayController'
+import { useJorniaController } from './src/hooks/useJorniaController'
 import { AuthScreen } from './src/screens/AuthScreen'
 import { ConfigErrorScreen } from './src/screens/ConfigErrorScreen'
 import { LoadingScreen } from './src/screens/LoadingScreen'
@@ -23,11 +23,11 @@ export default function App() {
   const securedSession = auth.passwordRecoveryMode ? null : auth.session
   const mfa = useMfaController(securedSession)
   const security = useSecurityController(securedSession)
-  const workday = useWorkdayController(auth.passwordRecoveryMode || mfa.initializing || mfa.challengeRequired ? null : auth.session)
+  const jornia = useJorniaController(auth.passwordRecoveryMode || mfa.initializing || mfa.challengeRequired ? null : auth.session)
   const isDark = themeMode === 'dark'
   const colors = palettes[themeMode]
   const styles = useMemo(() => createStyles(colors), [colors])
-  const activeTabTitle = workday.activeTab === 'calendar' ? monthNames[workday.currentMonth.getMonth()] : tabTitles[workday.activeTab]
+  const activeTabTitle = jornia.activeTab === 'calendar' ? monthNames[jornia.currentMonth.getMonth()] : tabTitles[jornia.activeTab]
 
   if (auth.initializing || mfa.initializing || security.initializing) {
     return <LoadingScreen colors={colors} styles={styles} />
@@ -52,16 +52,16 @@ export default function App() {
 
     return (
       <AppShell
-        activeTab={workday.activeTab}
+        activeTab={jornia.activeTab}
         colors={colors}
         isDark={isDark}
-        setActiveTab={workday.setActiveTab}
+        setActiveTab={jornia.setActiveTab}
         styles={styles}
         title={activeTabTitle}
       >
         <ActiveTabContent
           colors={colors}
-          controller={workday}
+          controller={jornia}
           handleSignOut={auth.handleSignOut}
           isDark={isDark}
           mfa={mfa}

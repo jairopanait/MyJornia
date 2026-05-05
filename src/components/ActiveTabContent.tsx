@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from 'react'
+﻿import type { Dispatch, SetStateAction } from 'react'
 import { CalendarScreen } from '../screens/CalendarScreen'
 import { ProfileScreen } from '../screens/ProfileScreen'
 import { SettingsScreen } from '../screens/SettingsScreen'
@@ -7,12 +7,12 @@ import { SummaryScreen } from '../screens/SummaryScreen'
 import type { AppColors, AppStyles } from '../theme'
 import type { MfaController } from '../hooks/useMfaController'
 import type { SecurityController } from '../hooks/useSecurityController'
-import type { WorkdayController } from '../hooks/useWorkdayController'
+import type { JorniaController } from '../hooks/useJorniaController'
 import type { ThemeMode } from '../types'
 
 type ActiveTabContentProps = {
   colors: AppColors
-  controller: WorkdayController
+  controller: JorniaController
   handleSignOut: () => void
   isDark: boolean
   mfa: MfaController

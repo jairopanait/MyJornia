@@ -1,4 +1,4 @@
--- MyWorkday: conceptos positivos extra de nómina.
+﻿-- MyJornia: conceptos positivos extra de nómina.
 -- Ejemplos: limpieza de ropa por turno trabajado, transporte fijo, dietas por hora.
 -- Ejecutar en Supabase SQL Editor.
 

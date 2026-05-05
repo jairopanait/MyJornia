@@ -1,6 +1,6 @@
-# Seguridad de MyWorkday
+﻿# Seguridad de MyJornia
 
-MyWorkday maneja turnos, datos laborales y estimaciones de nomina. Estos son datos personales, asi que el objetivo es que la app no dependa solo de "portarse bien" en el frontend.
+MyJornia maneja turnos, datos laborales y estimaciones de nomina. Estos son datos personales, asi que el objetivo es que la app no dependa solo de "portarse bien" en el frontend.
 
 ## Implementado en la app
 
@@ -35,4 +35,4 @@ Ese archivo:
 - Probar recuperacion de contrasena con el deep link final.
 - Probar bloqueo biometrico en un build real de iOS/Android, no solo Expo Go.
 - Revisar `npm audit` y actualizar Expo cuando haya parche compatible sin romper la version del SDK.
-- Preparar politica de privacidad propia de MyWorkday antes de App Store y Play Store.
+- Preparar politica de privacidad propia de MyJornia antes de App Store y Play Store.

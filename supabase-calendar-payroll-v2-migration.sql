@@ -1,4 +1,4 @@
--- MyWorkday: iconos, turnos sin horas, tramos nocturnos y festivos locales.
+﻿-- MyJornia: iconos, turnos sin horas, tramos nocturnos y festivos locales.
 -- Ejecutar en Supabase SQL Editor.
 
 alter table public.shifts

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "MyWorkday",
-    "slug": "MyWorkday",
-    "scheme": "myworkday",
+    "name": "MyJornia",
+    "slug": "myjornia",
+    "scheme": "myjornia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,9 +14,11 @@
       "backgroundColor": "#000000"
     },
     "ios": {
+      "bundleIdentifier": "app.myjornia.mobile",
       "supportsTablet": true
     },
     "android": {
+      "package": "app.myjornia.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
@@ -44,13 +46,13 @@
       [
         "expo-secure-store",
         {
-          "faceIDPermission": "Permite que MyWorkday use Face ID para proteger tus datos laborales."
+          "faceIDPermission": "Permite que MyJornia use Face ID para proteger tus datos laborales."
         }
       ],
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Permite que MyWorkday use Face ID para desbloquear la app."
+          "faceIDPermission": "Permite que MyJornia use Face ID para desbloquear la app."
         }
       ]
     ]

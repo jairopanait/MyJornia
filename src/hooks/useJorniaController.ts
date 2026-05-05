@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Alert } from 'react-native'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
@@ -36,7 +36,7 @@ function isValidDateKey(dateKey: string) {
   return !Number.isNaN(parsedDate.getTime()) && toDateKey(parsedDate) === dateKey
 }
 
-export function useWorkdayController(session: Session | null) {
+export function useJorniaController(session: Session | null) {
   const [activeTab, setActiveTab] = useState<AppTab>('calendar')
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(() => toDateKey(new Date()))
@@ -957,4 +957,4 @@ export function useWorkdayController(session: Session | null) {
   }
 }
 
-export type WorkdayController = ReturnType<typeof useWorkdayController>
+export type JorniaController = ReturnType<typeof useJorniaController>

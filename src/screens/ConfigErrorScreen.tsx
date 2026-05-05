@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, View } from 'react-native'
+﻿import { SafeAreaView, Text, View } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import type { AppStyles } from '../theme'
 
@@ -13,7 +13,7 @@ export function ConfigErrorScreen({ isDark, message, styles }: ConfigErrorScreen
     <SafeAreaView style={styles.screen}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <View style={styles.configPanel}>
-        <Text style={styles.logo}>MyWorkday</Text>
+        <Text style={styles.logo}>MyJornia</Text>
         <Text style={styles.formTitle}>Falta conectar Supabase</Text>
         <Text style={styles.configText}>{message}</Text>
         <Text style={styles.configCode}>EXPO_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co</Text>

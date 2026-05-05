@@ -1,4 +1,4 @@
--- MyWorkday: endurecimiento de seguridad para Supabase.
+﻿-- MyJornia: endurecimiento de seguridad para Supabase.
 -- Ejecutar en Supabase SQL Editor despues de las migraciones de calendario/nomina.
 -- No pegues nunca claves secretas en la app movil: solo la Publishable key.
 

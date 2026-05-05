@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
+﻿import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
 import type { AppStyles } from '../theme'
 
 type MfaChallengeScreenProps = {
@@ -14,7 +14,7 @@ export function MfaChallengeScreen({ challengeCode, loading, setChallengeCode, s
     <View style={[styles.loadingScreen, { paddingHorizontal: 24 }]}>
       <Text style={styles.loadingTitle}>Doble factor</Text>
       <Text style={[styles.helperText, { maxWidth: 310, textAlign: 'center' }]}>
-        Introduce el código de 6 dígitos de tu app autenticadora para entrar en MyWorkday.
+        Introduce el código de 6 dígitos de tu app autenticadora para entrar en MyJornia.
       </Text>
       <TextInput
         autoComplete="one-time-code"

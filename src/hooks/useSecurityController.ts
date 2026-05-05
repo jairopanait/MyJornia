@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, AppState, type AppStateStatus } from 'react-native'
 import type { Session } from '@supabase/supabase-js'
 import * as LocalAuthentication from 'expo-local-authentication'
 import * as SecureStore from 'expo-secure-store'
 
-const appLockStorageKey = 'myworkday:app-lock-enabled'
+const appLockStorageKey = 'myjornia:app-lock-enabled'
 
 type DeviceSecurityStatus = {
   available: boolean
@@ -131,7 +131,7 @@ export function useSecurityController(session: Session | null): SecurityControll
         await disableStoredAppLock()
         Alert.alert(
           'Bloqueo no disponible',
-          'Activa Face ID, huella o bloqueo seguro en tu móvil para proteger MyWorkday.',
+          'Activa Face ID, huella o bloqueo seguro en tu móvil para proteger MyJornia.',
         )
         return false
       }
@@ -140,7 +140,7 @@ export function useSecurityController(session: Session | null): SecurityControll
         cancelLabel: 'Cancelar',
         disableDeviceFallback: false,
         fallbackLabel: 'Usar código',
-        promptMessage: 'Desbloquear MyWorkday',
+        promptMessage: 'Desbloquear MyJornia',
       })
 
       if (result.success) {
@@ -229,7 +229,7 @@ export function useSecurityController(session: Session | null): SecurityControll
   const toggleAppLock = useCallback(async () => {
     if (appLockEnabledRef.current) {
       await disableStoredAppLock()
-      Alert.alert('Bloqueo desactivado', 'MyWorkday ya no pedirá desbloqueo al volver a la app.')
+      Alert.alert('Bloqueo desactivado', 'MyJornia ya no pedirá desbloqueo al volver a la app.')
       return
     }
 
@@ -261,7 +261,7 @@ export function useSecurityController(session: Session | null): SecurityControll
 
     appLockEnabledRef.current = true
     setAppLockEnabled(true)
-    Alert.alert('Bloqueo activado', `MyWorkday usará ${deviceSecurity.label} cuando vuelvas a la app.`)
+    Alert.alert('Bloqueo activado', `MyJornia usará ${deviceSecurity.label} cuando vuelvas a la app.`)
   }, [authenticate, disableStoredAppLock, refreshDeviceSecurity])
 
   return {

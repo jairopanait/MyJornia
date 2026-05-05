@@ -1,4 +1,4 @@
--- MyWorkday: elegir en qué turnos se aplica cada paga extra.
+﻿-- MyJornia: elegir en qué turnos se aplica cada paga extra.
 -- Ejecutar en Supabase SQL Editor después de supabase-payroll-additions-migration.sql.
 
 create table if not exists public.payroll_addition_shift_types (

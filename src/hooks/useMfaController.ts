@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 import { Alert } from 'react-native'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
@@ -144,7 +144,7 @@ export function useMfaController(session: Session | null): MfaController {
     setLoading(true)
     const { data, error } = await supabase.auth.mfa.enroll({
       factorType: 'totp',
-      friendlyName: 'MyWorkday',
+      friendlyName: 'MyJornia',
     })
     setLoading(false)
 

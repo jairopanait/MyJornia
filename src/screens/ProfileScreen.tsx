@@ -1,12 +1,12 @@
-import type { Dispatch, SetStateAction } from 'react'
+﻿import type { Dispatch, SetStateAction } from 'react'
 import { ActivityIndicator, Linking, Pressable, Text, TextInput, View } from 'react-native'
-import { appInfo } from '../constants'
+import { appInfo, legalUrls } from '../constants'
 import type { MfaController } from '../hooks/useMfaController'
 import type { SecurityController } from '../hooks/useSecurityController'
 import type { AppStyles } from '../theme'
 import type { AdminStats, ThemeMode } from '../types'
 
-const supportEmail = 'soporte@myworkday.app'
+const supportEmail = 'soporte@myjornia.app'
 
 type ProfileScreenProps = {
   adminLoading: boolean
@@ -62,11 +62,15 @@ export function ProfileScreen({
   styles,
 }: ProfileScreenProps) {
   const openSupportEmail = () => {
-    void Linking.openURL(`mailto:${supportEmail}?subject=Ayuda%20MyWorkday`)
+    void Linking.openURL(`mailto:${supportEmail}?subject=Ayuda%20MyJornia`)
   }
 
-  const openPrivacyReference = () => {
-    void Linking.openURL('https://www.aepd.es/derechos-y-deberes/conoce-tus-derechos/derecho-de-informacion')
+  const openPrivacyPolicy = () => {
+    void Linking.openURL(legalUrls.privacyPolicy)
+  }
+
+  const requestAccountDeletion = () => {
+    void Linking.openURL(legalUrls.accountDeletion)
   }
 
   return (
@@ -86,7 +90,7 @@ export function ProfileScreen({
           value={security.appLockEnabled ? 'Activado' : 'Desactivado'}
           detail={
             security.biometricAvailable
-              ? `Pedir ${security.biometricLabel} al volver a abrir MyWorkday`
+              ? `Pedir ${security.biometricLabel} al volver a abrir MyJornia`
               : 'Activa Face ID, huella o bloqueo seguro en tu móvil'
           }
           onPress={security.toggleAppLock}
@@ -151,7 +155,8 @@ export function ProfileScreen({
       <Text style={styles.sectionTitle}>Ayuda</Text>
       <View style={styles.groupedPanel}>
         <MenuRow styles={styles} title="Soporte" detail={supportEmail} onPress={openSupportEmail} />
-        <MenuRow styles={styles} title="Política de privacidad" onPress={openPrivacyReference} isLast />
+        <MenuRow styles={styles} title="Política de privacidad" detail={legalUrls.privacyPolicy} onPress={openPrivacyPolicy} />
+        <MenuRow styles={styles} title="Eliminar cuenta y datos" detail={legalUrls.accountDeletion} onPress={requestAccountDeletion} isLast />
       </View>
 
       {isAdmin ? (

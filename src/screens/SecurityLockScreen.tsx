@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, View } from 'react-native'
+﻿import { Image, Pressable, Text, View } from 'react-native'
 import type { AppStyles } from '../theme'
 
 type SecurityLockScreenProps = {
@@ -11,7 +11,7 @@ export function SecurityLockScreen({ authenticate, biometricLabel, styles }: Sec
   return (
     <View style={styles.loadingScreen}>
       <Image source={require('../../assets/splash-icon.png')} style={styles.loadingLogo} resizeMode="contain" />
-      <Text style={styles.loadingTitle}>MyWorkday</Text>
+      <Text style={styles.loadingTitle}>MyJornia</Text>
       <Text style={[styles.helperText, { maxWidth: 300, textAlign: 'center' }]}>
         La app está bloqueada para proteger tus turnos, nóminas y datos personales.
       </Text>

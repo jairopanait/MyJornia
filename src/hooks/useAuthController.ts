@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Alert, Linking } from 'react-native'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, supabaseConfigError } from '../../lib/supabase'
 
-const passwordResetRedirectUrl = process.env.EXPO_PUBLIC_PASSWORD_RESET_REDIRECT_URL || 'myworkday://password-reset'
+const passwordResetRedirectUrl = process.env.EXPO_PUBLIC_PASSWORD_RESET_REDIRECT_URL || 'myjornia://password-reset'
 
 function isStrongPassword(password: string) {
   const hasMinimumLength = password.length >= 8

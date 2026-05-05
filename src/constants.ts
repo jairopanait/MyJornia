@@ -1,4 +1,4 @@
-import type { CalendarViewMode, ShiftIconId, WorkRules } from './types'
+﻿import type { CalendarViewMode, ShiftIconId, WorkRules } from './types'
 
 export const tabTitles = {
   summary: 'Resumen',
@@ -9,12 +9,17 @@ export const tabTitles = {
 }
 
 export const appInfo = {
-  brand: 'MyWorkday',
-  company: 'MyWorkday',
+  brand: 'MyJornia',
+  company: 'MyJornia',
   designer: 'Jairo Panait García',
   madeIn: 'España',
   version: '1.0.0',
   year: '2026',
+}
+
+export const legalUrls = {
+  privacyPolicy: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || 'https://myjornia.app/privacidad/',
+  accountDeletion: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL || 'https://myjornia.app/eliminar-cuenta/',
 }
 
 export const monthNames = [
