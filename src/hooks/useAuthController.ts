@@ -143,22 +143,29 @@ export function useAuthController() {
       full_name: userFullName ?? null,
     })
 
-    await supabase.from('work_rules').upsert(
-      {
-        user_id: userId,
-        night_start: '22:00',
-        night_end: '06:00',
-        monthly_extra_hours: 160,
-        contract_hours: 160,
-        base_salary: 0,
-        complementary_hour_rate: 0,
-        night_hour_rate: 0,
-        holiday_hour_rate: 0,
-        holiday_shift_rate: 0,
-        holiday_pay_mode: 'hour',
-      },
-      { onConflict: 'user_id' },
-    )
+    const { data: existingWorkRules, error: existingWorkRulesError } = await supabase
+      .from('work_rules')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (existingWorkRules || existingWorkRulesError) {
+      return
+    }
+
+    await supabase.from('work_rules').insert({
+      user_id: userId,
+      night_start: '22:00',
+      night_end: '06:00',
+      monthly_extra_hours: 160,
+      contract_hours: 160,
+      base_salary: 0,
+      complementary_hour_rate: 0,
+      night_hour_rate: 0,
+      holiday_hour_rate: 0,
+      holiday_shift_rate: 0,
+      holiday_pay_mode: 'hour',
+    })
   }
 
   async function handleSubmit() {
